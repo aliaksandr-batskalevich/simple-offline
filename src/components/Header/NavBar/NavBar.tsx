@@ -8,11 +8,11 @@ export const NavBar = () => {
             <NavLink
                 to={'/profile'}
                 className={({isActive}) => isActive ? s.active : ''}
-            >Profile</NavLink>
+            >PROFILE</NavLink>
             <NavLink
                 to={'/users'}
                 className={({isActive}) => isActive ? s.active : ''}
-            >Users</NavLink>
+            >USERS</NavLink>
         </div>
     );
 };
