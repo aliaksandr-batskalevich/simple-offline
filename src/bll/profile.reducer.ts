@@ -4,7 +4,8 @@ import axios from 'axios';
 import {UsersAPI} from "../dal/html.api";
 
 export type ProfileActionsType = ReturnType<typeof setIsProfileInit>
-    | ReturnType<typeof setProfileData>;
+    | ReturnType<typeof setProfileData>
+    | ReturnType<typeof updateProfileFollowed>;
 
 export type ProfileStateType = {
     isProfileInit: boolean
@@ -28,6 +29,13 @@ export const profileReducer = (state: ProfileStateType = profileInitState, actio
             return {...state, ...action.payload};
         case "PROFILE_SET_PROFILE_DATA":
             return {...state, ...action.payload};
+        case "PROFILE_UPDATE_IS_FOLLOWED":
+            return {
+                ...state,
+                profileData: state.profileData
+                    ? {...state.profileData, isFollowed: action.payload.isFollowed}
+                    : null
+            };
         default:
             return state;
     }
@@ -45,6 +53,13 @@ const setProfileData = (profileData: null | IUser) => {
         payload: {profileData}
     } as const;
 };
+export const updateProfileFollowed = (isFollowed: boolean) => {
+    return {
+        type: 'PROFILE_UPDATE_IS_FOLLOWED',
+        payload: {isFollowed}
+    } as const;
+};
+
 export const getProfileTC = (id: number) => async (dispatch: ThunkDispatchType) => {
     try {
         dispatch(setIsProfileInit(false));

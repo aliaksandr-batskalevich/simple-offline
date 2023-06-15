@@ -9,8 +9,12 @@ import {
     getTotalPage, getUsers
 } from "../../../bll/users.selectors";
 import {useAppDispatch} from "../../../utils/hooks";
-import {getUsersTC, setCurrentPage} from "../../../bll/users.reducer";
-import {addSnackbarErrorMessage, addSnackbarInfoMessage} from "../../../bll/snackbar.reducer";
+import {followUserTC, getUsersTC, setCurrentPage, unFollowUserTC, updateUserFollowed} from "../../../bll/users.reducer";
+import {
+    addSnackbarErrorMessage,
+    addSnackbarInfoMessage,
+    addSnackbarWarningMessage
+} from "../../../bll/snackbar.reducer";
 import SuperPaginator from "../../commons/Paginator/SuperPaginator";
 import {Preloader} from "../../commons/Preloader/Preloader";
 import {User} from "./User/User";
@@ -33,10 +37,26 @@ export const Users = () => {
         dispatch(setCurrentPage(currentPage));
     };
     const followHandler = (id: number) => {
-
+        dispatch(updateUserFollowed(id, true));
+        dispatch(followUserTC(id))
+            .catch((reason => {
+                if (reason === 'Offline mode!') {
+                    dispatch(addSnackbarWarningMessage(reason));
+                } else {
+                    dispatch(addSnackbarErrorMessage(reason));
+                }
+            }));
     };
     const unFollowHandler = (id: number) => {
-
+        dispatch(updateUserFollowed(id, false));
+        dispatch(unFollowUserTC(id))
+            .catch((reason => {
+                if (reason === 'Offline mode!') {
+                    dispatch(addSnackbarWarningMessage(reason));
+                } else {
+                    dispatch(addSnackbarErrorMessage(reason));
+                }
+            }));
     };
 
     useEffect(() => {
@@ -46,7 +66,11 @@ export const Users = () => {
                 dispatch(addSnackbarInfoMessage(`Users loaded!`));
             })
             .catch(reason => {
-                dispatch(addSnackbarErrorMessage(reason));
+                if (reason === 'Offline mode!') {
+                    dispatch(addSnackbarWarningMessage(reason));
+                } else {
+                    dispatch(addSnackbarErrorMessage(reason));
+                }
             })
 
     }, [countOnPage, currentPage]);

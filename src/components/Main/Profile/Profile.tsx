@@ -5,25 +5,38 @@ import {getIsProfileInit, getProfileData, getProfileInitId} from "../../../bll/p
 import {useAppDispatch} from "../../../utils/hooks";
 import {Preloader} from "../../commons/Preloader/Preloader";
 import {useParams} from "react-router-dom";
-import {getProfileTC} from "../../../bll/profile.reducer";
+import {getProfileTC, updateProfileFollowed} from "../../../bll/profile.reducer";
 import {addSnackbarErrorMessage, addSnackbarInfoMessage} from "../../../bll/snackbar.reducer";
 import defaultAvatar from '../../../assets/images/default-avatar.png';
 import {SuperButton} from "../../commons/SuperButton/SuperButton";
+import {followUserTC, unFollowUserTC} from "../../../bll/users.reducer";
+import {getFollowingUsers} from "../../../bll/users.selectors";
 
 export const Profile = () => {
 
     const isProfileInit = useSelector(getIsProfileInit);
     const profileInitId = useSelector(getProfileInitId);
     const profileData = useSelector(getProfileData);
+    const followingUsers = useSelector(getFollowingUsers);
     const {id} = useParams<{ id: string }>();
+    const isFollowing = followingUsers.includes(id ? +id : profileInitId);
 
     const dispatch = useAppDispatch();
 
+
     const followHandler = () => {
-        dispatch(addSnackbarInfoMessage('Followed!'));
+        dispatch(updateProfileFollowed(true));
+        id && dispatch(followUserTC(+id))
+            .catch((reason => {
+                dispatch(addSnackbarErrorMessage(reason));
+            }));
     };
     const unFollowHandler = () => {
-        dispatch(addSnackbarInfoMessage('unFollowed!'));
+        dispatch(updateProfileFollowed(false));
+        id && dispatch(unFollowUserTC(+id))
+            .catch((reason => {
+                dispatch(addSnackbarErrorMessage(reason));
+            }));
     };
 
     useEffect(() => {
@@ -46,8 +59,8 @@ export const Profile = () => {
                     <img src={defaultAvatar} alt="avatar"/>
                     {profileInitId !== profileData.id
                     && <div className={s.followButtonWrapper}>
-                        {!profileData.isFollowed && <SuperButton onClick={followHandler}>follow</SuperButton>}
-                        {profileData.isFollowed && <SuperButton onClick={unFollowHandler}>unFollow</SuperButton>}
+                        {!profileData.isFollowed && <SuperButton isLoading={isFollowing} onClick={followHandler}>follow</SuperButton>}
+                        {profileData.isFollowed && <SuperButton isLoading={isFollowing} onClick={unFollowHandler}>unFollow</SuperButton>}
                     </div>}
                 </div>
                 <div className={s.descriptionWrapper}>

@@ -1,5 +1,6 @@
 import instance from "./instance";
 import {AllUsersResponse, UserResponse} from "../models/users.response";
+import {FollowResponse} from "../models/follow.response";
 
 export class UsersAPI {
 
@@ -15,16 +16,28 @@ export class UsersAPI {
 
 }
 
-// export class FollowAPI {
-//
-//     static async follow(id: number): Promise<FollowResponse> {
-//         return instance.post<FollowResponse>(`follow/${id}`)
-//             .then(response => response.data);
-//     }
-//
-//     static async unFollow(id: number): Promise<FollowResponse> {
-//         return instance.delete<FollowResponse>(`follow/${id}`)
-//             .then(response => response.data);
-//     }
-//
-// }
+export class FollowAPI {
+
+    static async follow(id: number): Promise<FollowResponse> {
+        return instance.post<FollowResponse>(`follow/${id}`)
+            .then(response => {
+                if (!response) {
+                    return Promise.reject({message: 'Offline mode!'});
+                }
+
+                return response.data;
+            });
+    }
+
+    static async unFollow(id: number): Promise<FollowResponse> {
+        return instance.delete<FollowResponse>(`follow/${id}`)
+            .then(response => {
+                if (!response) {
+                    return Promise.reject({message: 'Offline mode!'});
+                }
+
+                return response.data;
+            });
+    }
+
+}

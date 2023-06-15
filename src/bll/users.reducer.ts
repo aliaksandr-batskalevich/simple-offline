@@ -1,6 +1,6 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks";
-import {UsersAPI} from "../dal/html.api";
+import {FollowAPI, UsersAPI} from "../dal/html.api";
 import axios from "axios";
 
 export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
@@ -8,6 +8,7 @@ export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
     | ReturnType<typeof setUsers>
     | ReturnType<typeof setCurrentPage>
     | ReturnType<typeof setTotalPage>
+    | ReturnType<typeof updateUserFollowed>
     | ReturnType<typeof addFollowingUser>
     | ReturnType<typeof removeFollowingUser>;
 
@@ -49,6 +50,14 @@ export const usersReducer = (state: UsersStateType = userInitState, action: User
             return {...state, ...action.payload};
         case "USERS_SET_TOTAL_PAGE":
             return {...state, ...action.payload};
+        case "USERS_UPDATE_USER_FOLLOWED":
+            return {
+                ...state,
+                users: state.users!
+                    .map(user => user.id === action.payload.id
+                        ? {...user, isFollowed: action.payload.isFollowed}
+                        : user)
+            };
         case "USERS_ADD_FOLLOWING_USER":
             return {...state, followingUsers: [...state.followingUsers, action.payload.id]};
         case "USERS_REMOVE_FOLLOWING_USER":
@@ -91,6 +100,13 @@ export const setCurrentPage = (currentPage: number) => {
     } as const;
 };
 
+export const updateUserFollowed = (id: number, isFollowed: boolean) => {
+    return {
+        type: 'USERS_UPDATE_USER_FOLLOWED',
+        payload: {id, isFollowed}
+    } as const;
+};
+
 const addFollowingUser = (id: number) => {
     return {
         type: 'USERS_ADD_FOLLOWING_USER',
@@ -127,6 +143,58 @@ export const getUsersTC = (count: number, page: number) => async (dispatch: Thun
             errorMessage = error.message;
         }
         console.log(errorMessage);
+        return Promise.reject(errorMessage);
+    }
+};
+
+export const followUserTC = (id: number) => async (dispatch: ThunkDispatchType) => {
+    try {
+        // dispatch(addFollowingUser(id));
+
+        const response = await FollowAPI.follow(id);
+
+        // dispatch(removeFollowingUser(id));
+
+    } catch (error) {
+        let errorMessage: string;
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.response
+                ? error.response.data.message
+                : error.message;
+        } else {
+            //@ts-ignore
+            errorMessage = error.message;
+        }
+        console.log(errorMessage);
+
+        // dispatch(removeUserIdFollowing(id));
+
+        return Promise.reject(errorMessage);
+    }
+};
+
+export const unFollowUserTC = (id: number) => async (dispatch: ThunkDispatchType) => {
+    try {
+        // dispatch(addFollowingUser(id));
+
+        const response = await FollowAPI.unFollow(id);
+
+        // dispatch(removeFollowingUser(id));
+
+    } catch (error) {
+        let errorMessage: string;
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.response
+                ? error.response.data.message
+                : error.message;
+        } else {
+            //@ts-ignore
+            errorMessage = error.message;
+        }
+        console.log(errorMessage);
+
+        // dispatch(removeUserIdFollowing(id));
+
         return Promise.reject(errorMessage);
     }
 };
