@@ -1,0 +1,44 @@
+.paginatorWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pagesWrapper {
+    display: inline-block;
+}
+
+.pagesWrapper div {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.pagesWrapper div:hover,
+.leftButtons div:hover,
+.rightButtons div:hover {
+    color: gold;
+    transform: scale(1.2);
+}
+
+.pagesWrapper div:not(:first-child) {
+    margin-left: 5px;
+}
+
+.currentPage {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.leftButtons, .rightButtons {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.leftButtons > div {
+    margin-right: 10px;
+}
+
+.rightButtons > div {
+    margin-left: 10px;
+}

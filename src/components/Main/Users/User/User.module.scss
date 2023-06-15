@@ -1,0 +1,41 @@
+@import "/src/difinitions";
+
+.userWrapper {
+  margin-top: 5px;
+  padding: 5px;
+  display: flex;
+  line-height: 0;
+
+  border: $color-font-white solid 1px;
+
+  .avatarWrapper {
+    img {
+      display: inline-block;
+      height: 80px;
+    }
+  }
+
+  .description {
+    margin-left: 5px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: flex-start;
+
+    line-height: 105%;
+
+    a {
+      color: $color-font-white;
+    }
+
+    p {
+      font-size: 16px;
+      color: $color-font-grey;
+
+      span {
+        color: $color-font-white;
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+@import "/src/difinitions";
+
+.profileWrapper {
+  display: flex;
+
+  .avatarWrapper {
+
+    img {
+      display: inline-block;
+      height: 150px;
+    }
+
+    .followButtonWrapper {
+      display: flex;
+      justify-content: center;
+
+      button {
+        padding: 2px 10px;
+      }
+    }
+  }
+
+  .descriptionWrapper {
+    margin-left: 10px;
+
+    h3 {
+      color: $color-font-white;
+      text-decoration: underline;
+    }
+
+    p {
+      font-size: 20px;
+      color: $color-font-grey;
+
+      span {
+        color: $color-font-white;
+      }
+    }
+
+    >div:not(:first-child) {
+      margin-top: 10px;
+    }
+  }
+}

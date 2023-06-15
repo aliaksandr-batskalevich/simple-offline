@@ -1,0 +1,8 @@
+@import "/src/difinitions";
+
+.mainWrapper {
+  padding: 5px;
+  grid-area: main;
+
+  background-color: $color-background-dark;
+}

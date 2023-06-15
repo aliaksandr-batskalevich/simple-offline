@@ -1,0 +1,90 @@
+@import "/src/difinitions";
+
+
+.messageWrapper {
+  display: flex;
+  width: 300px;
+
+  &:not(:first-child) {
+    margin-top: 3px;
+  }
+
+  .triangle {
+    display: inline-block;
+    border-top: transparent solid 30px;
+    border-bottom: transparent solid 30px;
+    border-right: transparent solid 30px;
+  }
+
+  .textWrapper {
+    position: relative;
+    padding: 0 10px;
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .title {
+      line-height: .8;
+      font-size: 20px;
+    }
+
+    p {
+
+    }
+
+    .closeButton {
+      position: absolute;
+      top: 0;
+      right: 5px;
+      opacity: .5;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+
+      &::after {
+        content: '⮾';
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+.error {
+  > div {
+    &:first-child {
+      border-right: $color-snackbar-error solid 30px;
+    }
+
+    &:last-child {
+      background-color: $color-snackbar-error;
+    }
+  }
+}
+
+.warning {
+  > div {
+    &:first-child {
+      border-right: $color-snackbar-warning solid 30px;
+    }
+
+    &:last-child {
+      background-color: $color-snackbar-warning;
+    }
+  }
+}
+
+.info {
+  > div {
+    &:first-child {
+      border-right: $color-snackbar-info solid 30px;
+    }
+
+    &:last-child {
+      background-color: $color-snackbar-info;
+    }
+  }
+}

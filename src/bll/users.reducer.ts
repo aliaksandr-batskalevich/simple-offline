@@ -1,0 +1,132 @@
+import {IUser} from "../models/IUser";
+import {ThunkDispatchType} from "../utils/hooks";
+import {UsersAPI} from "../dal/html.api";
+import axios from "axios";
+
+export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
+    | ReturnType<typeof setIsUsersFetching>
+    | ReturnType<typeof setUsers>
+    | ReturnType<typeof setCurrentPage>
+    | ReturnType<typeof setTotalPage>
+    | ReturnType<typeof addFollowingUser>
+    | ReturnType<typeof removeFollowingUser>;
+
+type UsersStateType = {
+    isUsersPageInit: boolean
+    isUsersFetching: boolean
+
+    users: Array<IUser> | null
+
+    countOnPage: number
+    currentPage: number
+    totalPage: number | null
+
+    followingUsers: Array<number>
+};
+
+const userInitState: UsersStateType = {
+    isUsersPageInit: false,
+    isUsersFetching: false,
+
+    users: null,
+
+    countOnPage: 4,
+    currentPage: 1,
+    totalPage: null,
+
+    followingUsers: [],
+};
+
+export const usersReducer = (state: UsersStateType = userInitState, action: UserActionsType): UsersStateType => {
+    switch (action.type) {
+        case "USERS_SET_IS_USERS_INIT":
+            return {...state, ...action.payload};
+        case "USERS_SET_IS_USERS_FETCHING":
+            return {...state, ...action.payload};
+        case "USERS_SET_USERS":
+            return {...state, ...action.payload};
+        case "USERS_SET_CURRENT_PAGE":
+            return {...state, ...action.payload};
+        case "USERS_SET_TOTAL_PAGE":
+            return {...state, ...action.payload};
+        case "USERS_ADD_FOLLOWING_USER":
+            return {...state, followingUsers: [...state.followingUsers, action.payload.id]};
+        case "USERS_REMOVE_FOLLOWING_USER":
+            return {...state, followingUsers: state.followingUsers.filter(id => id !== action.payload.id)};
+        default:
+            return state;
+    }
+};
+
+const setIsUsersPageInit = (isUsersPageInit: boolean) => {
+    return {
+        type: 'USERS_SET_IS_USERS_INIT',
+        payload: {isUsersPageInit}
+    } as const;
+};
+const setIsUsersFetching = (isUsersFetching: boolean) => {
+    return {
+        type: 'USERS_SET_IS_USERS_FETCHING',
+        payload: {isUsersFetching}
+    } as const;
+};
+
+const setUsers = (users: Array<IUser>) => {
+    return {
+        type: 'USERS_SET_USERS',
+        payload: {users}
+    } as const;
+};
+
+const setTotalPage = (totalPage: number) => {
+    return {
+        type: 'USERS_SET_TOTAL_PAGE',
+        payload: {totalPage}
+    } as const;
+};
+export const setCurrentPage = (currentPage: number) => {
+    return {
+        type: 'USERS_SET_CURRENT_PAGE',
+        payload: {currentPage}
+    } as const;
+};
+
+const addFollowingUser = (id: number) => {
+    return {
+        type: 'USERS_ADD_FOLLOWING_USER',
+        payload: {id}
+    } as const;
+};
+const removeFollowingUser = (id: number) => {
+    return {
+        type: 'USERS_REMOVE_FOLLOWING_USER',
+        payload: {id}
+    } as const;
+};
+
+export const getUsersTC = (count: number, page: number) => async (dispatch: ThunkDispatchType) => {
+    try {
+        dispatch(setIsUsersFetching(true));
+
+        const response = await UsersAPI.getUsers(count, page);
+        const totalPage = Math.ceil(response.data.totalCount / count);
+
+        dispatch(setUsers(response.data.users));
+        dispatch(setTotalPage(totalPage));
+        dispatch(setIsUsersFetching(false));
+        dispatch(setIsUsersPageInit(true));
+    } catch (error) {
+        let errorMessage: string;
+        if (axios.isAxiosError(error)) {
+            errorMessage = error.response
+                ? error.response.data.message
+                : error.message;
+
+        } else {
+            //@ts-ignore
+            errorMessage = error.message;
+        }
+        console.log(errorMessage);
+        return Promise.reject(errorMessage);
+    }
+};

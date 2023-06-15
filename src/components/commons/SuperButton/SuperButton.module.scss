@@ -1,0 +1,28 @@
+.custom {
+  padding: 2px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.loading {
+  padding: 2px 10px 2px 5px;
+
+  &:hover {
+    transform: none;
+  }
+
+  &::before {
+    margin-right: 5px;
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-image: url("../../../assets/images/spinnerPreloader.gif");
+    background-size: contain;
+    background-position: center;
+  }
+}

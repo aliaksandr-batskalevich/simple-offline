@@ -1,0 +1,17 @@
+@import "/src/difinitions";
+
+.appWrapper {
+  background-color: $color-background-light;
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    min-height: 100vh;
+
+    display: grid;
+    grid-gap: 10px;
+    grid-template-areas: 'header header' 'sidebar main' 'footer footer';
+    grid-template-rows: 80px auto 80px;
+    grid-template-columns: 40px auto;
+  }
+}

@@ -1,0 +1,10 @@
+@import "/src/difinitions";
+
+.headerWrapper {
+  padding: 0 5px;
+  grid-area: header;
+  background-color: $color-background-dark;
+
+  display: flex;
+  align-items: center;
+}
