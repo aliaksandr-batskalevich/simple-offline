@@ -36,6 +36,7 @@ instance.interceptors.response.use(
             intervalId = setInterval((configs) => {
                 if (!configs.length) {
                     intervalId && clearInterval(intervalId);
+                    intervalId = null;
                     return;
                 }
                 instance.request(configs[0]);
