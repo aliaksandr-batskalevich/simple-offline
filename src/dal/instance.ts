@@ -2,7 +2,7 @@ import axios, {AxiosRequestConfig} from 'axios';
 
 
 // SERVER IP
-const baseURL = 'http://35.239.107.150/api/simple-offline/';
+const baseURL = 'http://35.192.79.86/api/simple-offline/';
 
 const configs = [] as AxiosRequestConfig[];
 let intervalId = null as null | NodeJS.Timer;
