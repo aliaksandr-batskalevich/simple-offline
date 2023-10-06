@@ -41,13 +41,9 @@ const userInitState: UsersStateType = {
 export const usersReducer = (state: UsersStateType = userInitState, action: UserActionsType): UsersStateType => {
     switch (action.type) {
         case "USERS_SET_IS_USERS_INIT":
-            return {...state, ...action.payload};
         case "USERS_SET_IS_USERS_FETCHING":
-            return {...state, ...action.payload};
         case "USERS_SET_USERS":
-            return {...state, ...action.payload};
         case "USERS_SET_CURRENT_PAGE":
-            return {...state, ...action.payload};
         case "USERS_SET_TOTAL_PAGE":
             return {...state, ...action.payload};
         case "USERS_UPDATE_USER_FOLLOWED":
@@ -79,14 +75,12 @@ const setIsUsersFetching = (isUsersFetching: boolean) => {
         payload: {isUsersFetching}
     } as const;
 };
-
 const setUsers = (users: Array<IUser>) => {
     return {
         type: 'USERS_SET_USERS',
         payload: {users}
     } as const;
 };
-
 const setTotalPage = (totalPage: number) => {
     return {
         type: 'USERS_SET_TOTAL_PAGE',
@@ -106,7 +100,6 @@ export const updateUserFollowed = (id: number, isFollowed: boolean) => {
         payload: {id, isFollowed}
     } as const;
 };
-
 const addFollowingUser = (id: number) => {
     return {
         type: 'USERS_ADD_FOLLOWING_USER',
@@ -149,11 +142,8 @@ export const getUsersTC = (count: number, page: number) => async (dispatch: Thun
 
 export const followUserTC = (id: number) => async (dispatch: ThunkDispatchType) => {
     try {
-        // dispatch(addFollowingUser(id));
 
-        const response = await FollowAPI.follow(id);
-
-        // dispatch(removeFollowingUser(id));
+        const response = await FollowAPI.followCustom(id);
 
     } catch (error) {
         let errorMessage: string;
@@ -166,8 +156,6 @@ export const followUserTC = (id: number) => async (dispatch: ThunkDispatchType) 
             errorMessage = error.message;
         }
         console.log(errorMessage);
-
-        // dispatch(removeUserIdFollowing(id));
 
         return Promise.reject(errorMessage);
     }
