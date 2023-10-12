@@ -1,11 +1,13 @@
 import {IUser} from "../models/IUser";
-import {ThunkDispatchType} from "../utils/hooks";
+import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
 import {FollowAPI, UsersAPI} from "../dal/html.api";
 import axios from "axios";
+import {QueueDAL} from "../offlineMode/queueDAL";
 
 export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
     | ReturnType<typeof setIsUsersFetching>
     | ReturnType<typeof setUsers>
+    | ReturnType<typeof updateUser>
     | ReturnType<typeof setCurrentPage>
     | ReturnType<typeof setTotalPage>
     | ReturnType<typeof updateUserFollowed>
@@ -46,6 +48,12 @@ export const usersReducer = (state: UsersStateType = userInitState, action: User
         case "USERS_SET_CURRENT_PAGE":
         case "USERS_SET_TOTAL_PAGE":
             return {...state, ...action.payload};
+        case "USERS_UPDATE_USER":
+            if (!state.users) return state;
+            return {...state, users: state.users?.map(u =>
+                    u.id === action.payload.user.id
+                        ? action.payload.user
+                        : u)};
         case "USERS_UPDATE_USER_FOLLOWED":
             return {
                 ...state,
@@ -63,25 +71,31 @@ export const usersReducer = (state: UsersStateType = userInitState, action: User
     }
 };
 
-const setIsUsersPageInit = (isUsersPageInit: boolean) => {
+export const setIsUsersPageInit = (isUsersPageInit: boolean) => {
     return {
         type: 'USERS_SET_IS_USERS_INIT',
         payload: {isUsersPageInit}
     } as const;
 };
-const setIsUsersFetching = (isUsersFetching: boolean) => {
+export const setIsUsersFetching = (isUsersFetching: boolean) => {
     return {
         type: 'USERS_SET_IS_USERS_FETCHING',
         payload: {isUsersFetching}
     } as const;
 };
-const setUsers = (users: Array<IUser>) => {
+export const setUsers = (users: Array<IUser> | null) => {
     return {
         type: 'USERS_SET_USERS',
         payload: {users}
     } as const;
 };
-const setTotalPage = (totalPage: number) => {
+export const updateUser = (user: IUser) => {
+    return {
+        type: 'USERS_UPDATE_USER',
+        payload: {user}
+    } as const;
+};
+export const setTotalPage = (totalPage: number) => {
     return {
         type: 'USERS_SET_TOTAL_PAGE',
         payload: {totalPage}
@@ -100,7 +114,7 @@ export const updateUserFollowed = (id: number, isFollowed: boolean) => {
         payload: {id, isFollowed}
     } as const;
 };
-const addFollowingUser = (id: number) => {
+export const addFollowingUser = (id: number) => {
     return {
         type: 'USERS_ADD_FOLLOWING_USER',
         payload: {id}
@@ -115,35 +129,20 @@ const removeFollowingUser = (id: number) => {
 
 export const getUsersTC = (count: number, page: number) => async (dispatch: ThunkDispatchType) => {
     try {
+        dispatch(setUsers(null));
         dispatch(setIsUsersFetching(true));
 
-        const response = await UsersAPI.getUsers(count, page);
-        const totalPage = Math.ceil(response.data.totalCount / count);
+        const pr = QueueDAL.getUsers(dispatch, count, page);
 
-        dispatch(setUsers(response.data.users));
-        dispatch(setTotalPage(totalPage));
-        dispatch(setIsUsersFetching(false));
-        dispatch(setIsUsersPageInit(true));
     } catch (error) {
-        let errorMessage: string;
-        if (axios.isAxiosError(error)) {
-            errorMessage = error.response
-                ? error.response.data.message
-                : error.message;
-
-        } else {
-            //@ts-ignore
-            errorMessage = error.message;
-        }
-        console.log(errorMessage);
-        return Promise.reject(errorMessage);
+        console.log(error);
     }
 };
 
 export const followUserTC = (id: number) => async (dispatch: ThunkDispatchType) => {
     try {
 
-        const response = await FollowAPI.followCustom(id);
+        const response = await FollowAPI.follow(id);
 
     } catch (error) {
         let errorMessage: string;

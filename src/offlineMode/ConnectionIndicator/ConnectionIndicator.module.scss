@@ -1,0 +1,11 @@
+.connectionIndicator {
+  padding-right: 5px;
+
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+
+  .offline {
+    opacity: .5;
+  }
+}

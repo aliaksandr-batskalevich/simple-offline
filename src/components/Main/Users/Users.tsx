@@ -8,7 +8,7 @@ import {
     getIsUsersPageInit,
     getTotalPage, getUsers
 } from "../../../bll/users.selectors";
-import {useAppDispatch} from "../../../utils/hooks";
+import {useAppDispatch} from "../../../utils/hooks/useAppDispatch";
 import {followUserTC, getUsersTC, setCurrentPage, unFollowUserTC, updateUserFollowed} from "../../../bll/users.reducer";
 import {
     addSnackbarErrorMessage,
@@ -60,46 +60,38 @@ export const Users = () => {
     };
 
     useEffect(() => {
-
-        dispatch(getUsersTC(countOnPage, currentPage))
-            .then(() => {
-                dispatch(addSnackbarInfoMessage(`Users loaded!`));
-            })
-            .catch(reason => {
-                if (reason === 'Offline mode!') {
-                    dispatch(addSnackbarWarningMessage(reason));
-                } else {
-                    dispatch(addSnackbarErrorMessage(reason));
-                }
-            })
-
+        const pr = dispatch(getUsersTC(countOnPage, currentPage));
     }, [countOnPage, currentPage]);
 
     const usersToRender = users
         ? users.map(user => <User
-                key={user.id}
-                {...user}
-                profileInitId={profileInitId}
-                isFollowing={followingUsers.includes(user.id)}
-                follow={followHandler}
-                unFollow={unFollowHandler}
-            />)
+            key={user.id}
+            {...user}
+            profileInitId={profileInitId}
+            isFollowing={followingUsers.includes(user.id)}
+            follow={followHandler}
+            unFollow={unFollowHandler}
+        />)
         : null;
 
     return (
-        isUsersPageInit && totalPage
-            ? <div className={s.usersWrapper}>
-                <SuperPaginator
-                    viewPagesOddNumber={9}
-                    pageJumpPositive={5}
-                    currentPage={currentPage}
-                    totalPage={totalPage}
-                    setCurrentPage={setCurrentPageHandler}
-                />
-                {!isUsersFetching
-                    ? usersToRender
-                    : <Preloader/>}
-            </div>
-            : <Preloader/>
+        // isUsersPageInit && totalPage
+        //     ? <div className={s.usersWrapper}>
+        //         <SuperPaginator
+        //             viewPagesOddNumber={9}
+        //             pageJumpPositive={5}
+        //             currentPage={currentPage}
+        //             totalPage={totalPage}
+        //             setCurrentPage={setCurrentPageHandler}
+        //         />
+        //         {!isUsersFetching
+        //             ? usersToRender
+        //             : <Preloader/>}
+        //     </div>
+        //     : <Preloader/>
+
+        <div className={s.usersWrapper}>
+            {usersToRender}
+        </div>
     );
 };

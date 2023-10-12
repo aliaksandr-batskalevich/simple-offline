@@ -3,7 +3,7 @@ import s from './Snackbar.module.scss';
 import {Message} from "./Message/Message";
 import {useSelector} from "react-redux";
 import {getSnackbarMessages} from "../../bll/snackbar.selectors";
-import {useAppDispatch} from "../../utils/hooks";
+import {useAppDispatch} from "../../utils/hooks/useAppDispatch";
 import {removeSnackbarMessage} from "../../bll/snackbar.reducer";
 
 export const Snackbar = () => {
