@@ -6,6 +6,7 @@ import {useAppDispatch} from "../../utils/hooks/useAppDispatch";
 import {setIsOnline} from "../../bll/app.reducer";
 import {engineAPI} from "../engineAPI";
 import {addSnackbarInfoMessage, addSnackbarWarningMessage} from "../../bll/snackbar.reducer";
+import {requestsStorage} from "../requestsStorage";
 
 
 export const ConnectionIndicator = () => {
@@ -26,13 +27,23 @@ export const ConnectionIndicator = () => {
             dispatch(addSnackbarWarningMessage('Offline mode activated!'));
         };
 
+        const closeTabHandler = () => {
+            const tabId = requestsStorage.getTabId();
+            const nextTabId = requestsStorage.removeTabAndGetNext(tabId);
+            if (!nextTabId) return requestsStorage.removeAllRequests();
+
+            requestsStorage.replaceRequests(tabId, nextTabId);
+        }
+
 
         window.addEventListener('online', onlineHandler);
         window.addEventListener('offline', offlineHandler);
+        window.addEventListener('beforeunload', closeTabHandler);
 
         return () => {
             window.removeEventListener('online', onlineHandler);
             window.removeEventListener('offline', offlineHandler);
+            window.removeEventListener('beforeunload', closeTabHandler);
         };
 
     }, []);

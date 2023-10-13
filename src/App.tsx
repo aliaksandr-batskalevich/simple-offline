@@ -5,6 +5,7 @@ import {Header} from "./components/Header/Header";
 import {Footer} from "./components/Footer/Footer";
 import {Main} from "./components/Main/Main";
 import {SideBar} from "./components/Main/SideBar/SideBar";
+import {QueueRequestsMonitor} from "./offlineMode/QueueRequestsMonitor/QueueRequestsMonitor";
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
                 <Footer/>
             </div>
             <Snackbar/>
+            <QueueRequestsMonitor/>
         </div>
     );
 }

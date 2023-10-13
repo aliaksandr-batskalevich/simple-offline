@@ -3,7 +3,6 @@ import {EngineStatus, requestsStorage} from "./requestsStorage";
 import {ResponseActions, ResponseMethod} from "./responseActions";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
 
-
 const baseURL = 'http://185.250.46.14/api/simple-offline/';
 
 class EngineAPI {
@@ -34,7 +33,9 @@ class EngineAPI {
                 // @ts-ignore
                 ResponseActions[responseMethod](response.data, dispatch);
                 requestsStorage.removeRequest(request.requestId);
+
             } catch (e) {
+
                 // ERROR PROCESSING - MUST BE FIX
                 break;
             }

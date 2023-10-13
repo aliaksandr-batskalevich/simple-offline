@@ -52,7 +52,7 @@ export class Request {
         this.requestId = v1();
         this.tabId = requestsStorage.getTabId();
         this.title = title;
-        this.dateCreate = new Date().toLocaleDateString();
+        this.dateCreate = new Date().toLocaleTimeString();
         this.requestConfig = requestConfig;
         this.responseMethod = responseMethod;
         this.isPrimary = isPrimary;

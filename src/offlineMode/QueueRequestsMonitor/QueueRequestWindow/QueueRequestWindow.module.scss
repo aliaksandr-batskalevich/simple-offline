@@ -1,0 +1,13 @@
+@import "/src/difinitions";
+
+.queueRequestWindow {
+  padding: 15px;
+
+  width: 200px;
+  height: 500px;
+
+  border: white solid 2px;
+  background-color: $color-background-dark;
+
+  color: white;
+}
