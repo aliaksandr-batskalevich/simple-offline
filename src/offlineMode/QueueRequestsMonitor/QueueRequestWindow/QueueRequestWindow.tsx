@@ -6,7 +6,7 @@ import {RequestElement} from "./RequestElement/RequestElement";
 
 export const QueueRequestWindow = () => {
 
-    const [queue, setQueue] = useState<Array<Request>>([]);
+    let [queue, setQueue] = useState<Array<Request>>([]);
 
     useEffect(() => {
 
@@ -17,6 +17,7 @@ export const QueueRequestWindow = () => {
 
         const updateStorageHandler = (event: StorageEvent) => {
             if (event.key !== StorageKeys.REQUESTS) return;
+
             setQueueHandler();
         };
 
@@ -26,14 +27,33 @@ export const QueueRequestWindow = () => {
 
         return () => {
             window.removeEventListener("storage", updateStorageHandler);
-        }
+        };
     }, []);
 
-    const requestElementsToRender = queue.map(r => <RequestElement key={r.requestId} {...r}/>)
+    const removeRequestHandler = (requestId: string) => {
+        requestsStorage.removeRequest(requestId);
+        queue = queue.filter(r => r.requestId !== requestId);
+        setQueue(queue);
+    };
+
+    const removeAllTabRequestsHandler = () => {
+        requestsStorage.removeAllTabRequest();
+        const tabId = requestsStorage.getTabId();
+        queue = queue.filter(r => r.tabId !== tabId);
+        setQueue(queue);
+    };
+
+    const requestElementsToRender = queue.map(r => <RequestElement key={r.requestId} removeRequest={removeRequestHandler} {...r}/>);
 
     return (
         <div className={s.queueRequestWindow}>
-            <h3>REQUESTS</h3>
+            <div className={s.headWrapper}>
+                <h3>REQUESTS</h3>
+                <button onClick={removeAllTabRequestsHandler}>
+                    Clear all
+                </button>
+            </div>
+
             {requestElementsToRender}
         </div>
     );

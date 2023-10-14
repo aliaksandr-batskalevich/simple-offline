@@ -1,4 +1,30 @@
 .requestElement {
   margin-top: 5px;
+  padding: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
 
+  .titleWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    button {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+
+      &::before {
+        content: '✖';
+        font-size: 12px;
+        line-height: 1;
+        color: white;
+      }
+    }
+  }
+
+  span {
+    opacity: .6;
+    font-size: 12px;
+  }
 }

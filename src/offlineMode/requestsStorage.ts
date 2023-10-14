@@ -44,6 +44,7 @@ class RequestsStorage {
 
     }
 
+
     public getTabId() {
         return sessionStorage.getItem(StorageKeys.TAB_ID) || 'no_tab_id';
     }
@@ -59,11 +60,6 @@ class RequestsStorage {
         return tabs[0];
     }
 
-    public replaceRequests(currentTabId: string, targetTabId: string) {
-        let allRequests = this.getAllRequests();
-        allRequests.map(req => req.tabId === currentTabId ? req.tabId = targetTabId : req);
-        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(allRequests));
-    }
 
     public getEngineStatus() {
         return sessionStorage.getItem(StorageKeys.ENGINE_STATUS) || EngineStatus.WAITING;
@@ -72,6 +68,7 @@ class RequestsStorage {
     public setEngineStatus(engineStatus: EngineStatus) {
         sessionStorage.setItem(StorageKeys.ENGINE_STATUS, engineStatus);
     }
+
 
     public getAllRequests() {
         const localData = localStorage.getItem(StorageKeys.REQUESTS);
@@ -110,8 +107,26 @@ class RequestsStorage {
         localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requestQueue));
     }
 
+    public removeAllTabRequest() {
+        const localData = localStorage.getItem(StorageKeys.REQUESTS);
+        if (!localData) return;
+
+        const tabId = this.getTabId();
+
+        let requestQueue = JSON.parse(localData) as RequestQueue;
+
+        requestQueue = requestQueue.filter(r => r.tabId !== tabId);
+        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requestQueue));
+    }
+
     public removeAllRequests() {
         localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify([]));
+    }
+
+    public replaceRequests(currentTabId: string, targetTabId: string) {
+        let allRequests = this.getAllRequests();
+        allRequests.map(req => req.tabId === currentTabId ? req.tabId = targetTabId : req);
+        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(allRequests));
     }
 }
 

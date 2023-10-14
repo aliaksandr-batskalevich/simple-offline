@@ -10,4 +10,18 @@
   background-color: $color-background-dark;
 
   color: white;
+
+  .headWrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+      background-color: transparent;
+      border: none;
+      color: white;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
 }
