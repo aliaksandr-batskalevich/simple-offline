@@ -1,8 +1,8 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
-import {FollowAPI, UsersAPI} from "../dal/html.api";
+import {FollowAPI} from "../dal/html.api";
 import axios from "axios";
-import {QueueDAL} from "../offlineMode/queueDAL";
+import {RequestsQueueDAL} from "../offlineMode/dal/requestsQueue.dal";
 
 export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
     | ReturnType<typeof setIsUsersFetching>
@@ -132,7 +132,7 @@ export const getUsersTC = (count: number, page: number) => async (dispatch: Thun
         dispatch(setUsers(null));
         dispatch(setIsUsersFetching(true));
 
-        const pr = QueueDAL.getUsers(dispatch, count, page);
+        const pr = RequestsQueueDAL.getUsers(dispatch, count, page);
 
     } catch (error) {
         console.log(error);

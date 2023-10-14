@@ -1,6 +1,6 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
-import {QueueDAL} from "../offlineMode/queueDAL";
+import {RequestsQueueDAL} from "../offlineMode/dal/requestsQueue.dal";
 
 export type ProfileActionsType = ReturnType<typeof setIsProfileInit>
     | ReturnType<typeof setProfileData>
@@ -62,7 +62,7 @@ export const getProfileTC = (id: number) => async (dispatch: ThunkDispatchType) 
         dispatch(setIsProfileInit(false));
 
         // ADD REQUEST TO QUEUE
-        const pr = QueueDAL.getUser(id, dispatch);
+        const pr = RequestsQueueDAL.getUser(id, dispatch);
 
     } catch (error) {
         console.log(error);

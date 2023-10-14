@@ -1,6 +1,5 @@
 enum AppActionType {
     SET_CONNECTION = "SET_CONNECTION",
-    SET_REQUESTS_UPDATE = "SET_REQUESTS_UPDATE",
 }
 
 export type AppActionsType = ReturnType<typeof setIsOnline>;

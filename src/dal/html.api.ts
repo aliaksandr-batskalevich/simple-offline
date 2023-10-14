@@ -3,19 +3,19 @@ import {AllUsersResponse, UserResponse} from "../models/users.response";
 import {FollowResponse} from "../models/follow.response";
 
 
-export class UsersAPI {
-
-    static async getUser(id: number): Promise<UserResponse> {
-        return instance.get<UserResponse>(`users/${id}`)
-            .then(response => response.data);
-    }
-
-    static async getUsers(count: number, page: number): Promise<AllUsersResponse> {
-        return instance.get<AllUsersResponse>(`users?count=${count}&page=${page}`)
-            .then(response => response.data);
-    }
-
-}
+// export class UsersAPI {
+//
+//     static async getUser(id: number): Promise<UserResponse> {
+//         return instance.get<UserResponse>(`users/${id}`)
+//             .then(response => response.data);
+//     }
+//
+//     static async getUsers(count: number, page: number): Promise<AllUsersResponse> {
+//         return instance.get<AllUsersResponse>(`users?count=${count}&page=${page}`)
+//             .then(response => response.data);
+//     }
+//
+// }
 
 export class FollowAPI {
 

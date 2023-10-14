@@ -1,4 +1,3 @@
-import {requestsStorage} from "./requestsStorage";
 import {ResponseMethod} from "./responseActions";
 import {v1} from "uuid";
 
@@ -34,7 +33,7 @@ export class RequestConfig {
     }
 }
 
-export class Request {
+export class AppRequest {
     requestId: string;
     tabId: string;
     title: string;
@@ -44,13 +43,14 @@ export class Request {
     isPrimary: boolean;
 
     constructor(
+        tabId: string,
         title: string,
         requestConfig: RequestConfig,
         responseMethod: ResponseMethod,
         isPrimary: boolean = false
     ) {
         this.requestId = v1();
-        this.tabId = requestsStorage.getTabId();
+        this.tabId = tabId;
         this.title = title;
         this.dateCreate = new Date().toLocaleTimeString();
         this.requestConfig = requestConfig;

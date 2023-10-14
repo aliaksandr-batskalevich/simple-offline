@@ -37,26 +37,26 @@ export const Users = () => {
         dispatch(setCurrentPage(currentPage));
     };
     const followHandler = (id: number) => {
-        dispatch(updateUserFollowed(id, true));
-        dispatch(followUserTC(id))
-            .catch((reason => {
-                if (reason === 'Offline mode!') {
-                    dispatch(addSnackbarWarningMessage(reason));
-                } else {
-                    dispatch(addSnackbarErrorMessage(reason));
-                }
-            }));
+        // dispatch(updateUserFollowed(id, true));
+        // dispatch(followUserTC(id))
+        //     .catch((reason => {
+        //         if (reason === 'Offline mode!') {
+        //             dispatch(addSnackbarWarningMessage(reason));
+        //         } else {
+        //             dispatch(addSnackbarErrorMessage(reason));
+        //         }
+        //     }));
     };
     const unFollowHandler = (id: number) => {
-        dispatch(updateUserFollowed(id, false));
-        dispatch(unFollowUserTC(id))
-            .catch((reason => {
-                if (reason === 'Offline mode!') {
-                    dispatch(addSnackbarWarningMessage(reason));
-                } else {
-                    dispatch(addSnackbarErrorMessage(reason));
-                }
-            }));
+        // dispatch(updateUserFollowed(id, false));
+        // dispatch(unFollowUserTC(id))
+        //     .catch((reason => {
+        //         if (reason === 'Offline mode!') {
+        //             dispatch(addSnackbarWarningMessage(reason));
+        //         } else {
+        //             dispatch(addSnackbarErrorMessage(reason));
+        //         }
+        //     }));
     };
 
     useEffect(() => {

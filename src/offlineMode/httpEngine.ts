@@ -1,27 +1,32 @@
 import axios from "axios";
-import {EngineStatus, requestsStorage} from "./requestsStorage";
 import {ResponseActions, ResponseMethod} from "./responseActions";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
+import {engineStorage} from "./dal/engineStorage.api";
+import {requestsStorage} from "./dal/requestsStorage.api";
+import {EngineStatus} from "./dal/StorageTypes";
+import {tabsStorage} from "./dal/tabsStorage.api";
+import {removeRequest} from "./bll/requests.reducer";
 
 const baseURL = 'http://185.250.46.14/api/simple-offline/';
 
-class EngineAPI {
+class HttpEngine {
     _instance;
 
     constructor() {
         this._instance = axios.create({baseURL});
     }
 
-    public async engine(dispatch: ThunkDispatchType) {
+    public async start(dispatch: ThunkDispatchType) {
 
-        const engineStatus = requestsStorage.getEngineStatus();
+        const engineStatus = engineStorage.getEngineStatus();
         if (engineStatus === EngineStatus.PROGRESS) return;
 
-        requestsStorage.setEngineStatus(EngineStatus.PROGRESS);
+        engineStorage.setEngineStatus(EngineStatus.PROGRESS);
 
-        let allTabRequests = requestsStorage.getAllTabRequests();
+        const tabId = tabsStorage.getTabId();
+        let allTabRequests = requestsStorage.getAllTabRequests(tabId);
 
-        for (let i = 0; i < allTabRequests.length; allTabRequests = requestsStorage.getAllTabRequests()) {
+        for (let i = 0; i < allTabRequests.length; allTabRequests = requestsStorage.getAllTabRequests(tabId)) {
             if (!window.navigator.onLine) break;
 
             const request = allTabRequests[0];
@@ -33,6 +38,7 @@ class EngineAPI {
                 // @ts-ignore
                 ResponseActions[responseMethod](response.data, dispatch);
                 requestsStorage.removeRequest(request.requestId);
+                dispatch(removeRequest(request.requestId));
 
             } catch (e) {
 
@@ -42,9 +48,9 @@ class EngineAPI {
 
         }
 
-        requestsStorage.setEngineStatus(EngineStatus.WAITING);
+        engineStorage.setEngineStatus(EngineStatus.WAITING);
     }
 
 }
 
-export const engineAPI = new EngineAPI();
+export const httpEngine = new HttpEngine();
