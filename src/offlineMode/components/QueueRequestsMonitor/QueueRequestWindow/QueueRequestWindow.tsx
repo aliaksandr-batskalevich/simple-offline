@@ -3,7 +3,7 @@ import s from './QueueRequestWindow.module.scss';
 import {RequestElement} from "./RequestElement/RequestElement";
 import {useAppDispatch} from "../../../../utils/hooks/useAppDispatch";
 import {removeAllTabRequestsTC, removeRequestTC} from "../../../bll/requests.reducer";
-import {AppRequest} from "../../../IAppRequest";
+import {AppRequest} from "../../../models/AppRequest";
 
 interface QueueRequestWindowProps {
     requests: AppRequest[]

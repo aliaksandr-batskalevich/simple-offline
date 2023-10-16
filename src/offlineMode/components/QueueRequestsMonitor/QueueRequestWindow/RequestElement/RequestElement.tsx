@@ -1,6 +1,6 @@
 import React from 'react';
 import s from './RequestElement.module.scss';
-import {AppRequest} from "../../../../IAppRequest";
+import {AppRequest} from "../../../../models/AppRequest";
 
 interface RequestElementProps extends AppRequest {
     removeRequest: (requestId: string) => void

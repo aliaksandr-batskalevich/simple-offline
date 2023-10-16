@@ -1,5 +1,5 @@
-import {AppRequest} from '../IAppRequest';
-import {StorageKeys} from "./StorageTypes";
+import {AppRequest} from '../../models/AppRequest';
+import {StorageKeys} from "../../models/StorageTypes";
 
 class RequestsStorage {
 

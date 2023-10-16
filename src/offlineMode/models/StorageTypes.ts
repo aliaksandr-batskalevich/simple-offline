@@ -4,6 +4,7 @@ export enum StorageKeys {
     TABS = "tabs",                      // localStorage
     ENGINE_STATUS = "engineStatus",     // sessionStorage
     REQUESTS = "requests",              // localStorage
+    ROLLBACKS = "rollbacks",              // localStorage
 }
 
 export enum EngineStatus {

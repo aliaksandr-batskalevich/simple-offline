@@ -1,5 +1,5 @@
 import {useEffect} from "react";
-import {StorageKeys} from "../dal/StorageTypes";
+import {StorageKeys} from "../models/StorageTypes";
 import {importRequestsFromStorageTC, replaceRequestsToNextTabTC} from "../bll/requests.reducer";
 import {useAppDispatch} from "../../utils/hooks/useAppDispatch";
 

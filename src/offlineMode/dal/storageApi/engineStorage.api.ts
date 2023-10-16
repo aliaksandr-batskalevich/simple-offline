@@ -1,4 +1,4 @@
-import {EngineStatus, StorageKeys} from "./StorageTypes";
+import {EngineStatus, StorageKeys} from "../../models/StorageTypes";
 
 class EngineStorage {
 

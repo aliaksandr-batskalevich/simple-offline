@@ -1,7 +1,7 @@
 import {ThunkDispatchType} from "../../utils/hooks/useAppDispatch";
 import {httpEngine} from "../httpEngine";
 import {RequestsQueueDAL} from "../dal/requestsQueue.dal";
-import {AppRequest} from "../IAppRequest";
+import {AppRequest} from "../models/AppRequest";
 
 export type RequestsActionsType = ReturnType<typeof addRequest>
     | ReturnType<typeof addRequests>

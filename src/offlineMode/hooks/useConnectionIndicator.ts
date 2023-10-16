@@ -1,10 +1,10 @@
 import {useEffect} from "react";
-import {setIsOnline} from "../../bll/app.reducer";
+import {setIsOnline} from "../bll/app.reducer";
 import {addSnackbarInfoMessage, addSnackbarWarningMessage} from "../../bll/snackbar.reducer";
 import {startHttpEngineTC} from "../bll/requests.reducer";
 import {useAppDispatch} from "../../utils/hooks/useAppDispatch";
 import {useSelector} from "react-redux";
-import {getIsOnline} from "../../bll/app.selectors";
+import {getIsOnline} from "../bll/app.selectors";
 
 export const useConnectionIndicator = () => {
 

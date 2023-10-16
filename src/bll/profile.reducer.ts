@@ -1,10 +1,18 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
 import {RequestsQueueDAL} from "../offlineMode/dal/requestsQueue.dal";
+import {RootStateType} from "./store";
+import {getProfileData} from "./profile.selectors";
 
 export type ProfileActionsType = ReturnType<typeof setIsProfileInit>
     | ReturnType<typeof setProfileData>
     | ReturnType<typeof updateProfileFollowed>;
+
+enum ProfileActions {
+    SET_IS_PROFILE_INIT = "SET_IS_PROFILE_INIT",
+    SET_PROFILE_DATA = "SET_PROFILE_DATA",
+    UPDATE_IS_FOLLOWED = "UPDATE_IS_FOLLOWED",
+}
 
 export type ProfileStateType = {
     isProfileInit: boolean
@@ -22,10 +30,10 @@ const profileInitState: ProfileStateType = {
 
 export const profileReducer = (state: ProfileStateType = profileInitState, action: ProfileActionsType): ProfileStateType => {
     switch (action.type) {
-        case "PROFILE_SET_IS_PROFILE_INIT":
-        case "PROFILE_SET_PROFILE_DATA":
+        case ProfileActions.SET_IS_PROFILE_INIT:
+        case ProfileActions.SET_PROFILE_DATA:
             return {...state, ...action.payload};
-        case "PROFILE_UPDATE_IS_FOLLOWED":
+        case ProfileActions.UPDATE_IS_FOLLOWED:
             return {
                 ...state,
                 profileData: state.profileData
@@ -39,32 +47,37 @@ export const profileReducer = (state: ProfileStateType = profileInitState, actio
 
 export const setIsProfileInit = (isProfileInit: boolean) => {
     return {
-        type: 'PROFILE_SET_IS_PROFILE_INIT',
+        type: ProfileActions.SET_IS_PROFILE_INIT,
         payload: {isProfileInit}
     } as const;
 };
 export const setProfileData = (profileData: null | IUser) => {
     return {
-        type: 'PROFILE_SET_PROFILE_DATA',
+        type: ProfileActions.SET_PROFILE_DATA,
         payload: {profileData}
     } as const;
 };
 export const updateProfileFollowed = (isFollowed: boolean) => {
     return {
-        type: 'PROFILE_UPDATE_IS_FOLLOWED',
+        type: ProfileActions.UPDATE_IS_FOLLOWED,
         payload: {isFollowed}
     } as const;
 };
 
-export const getProfileTC = (id: number) => async (dispatch: ThunkDispatchType) => {
-    try {
-        dispatch(setProfileData(null));
-        dispatch(setIsProfileInit(false));
+export const getProfileTC = (id: number) =>
+    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
+        try {
+            dispatch(setProfileData(null));
+            dispatch(setIsProfileInit(false));
 
-        // ADD REQUEST TO QUEUE
-        const pr = RequestsQueueDAL.getUser(id, dispatch);
+            // CREATE ROLLBACK
+            const state = getState();
+            const rollbackState = getProfileData(state);
 
-    } catch (error) {
-        console.log(error);
-    }
-};
+            // ADD REQUEST TO QUEUE
+            const pr = RequestsQueueDAL.getUser(id, dispatch, rollbackState);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };

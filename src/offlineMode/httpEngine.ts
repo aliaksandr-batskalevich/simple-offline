@@ -1,13 +1,17 @@
 import axios from "axios";
-import {ResponseActions, ResponseMethod} from "./responseActions";
+import {ResponseResolveAction} from "./actions/responseResolve.action";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
-import {engineStorage} from "./dal/engineStorage.api";
-import {requestsStorage} from "./dal/requestsStorage.api";
-import {EngineStatus} from "./dal/StorageTypes";
-import {tabsStorage} from "./dal/tabsStorage.api";
+import {engineStorage} from "./dal/storageApi/engineStorage.api";
+import {requestsStorage} from "./dal/storageApi/requestsStorage.api";
+import {EngineStatus} from "./models/StorageTypes";
+import {tabsStorage} from "./dal/storageApi/tabsStorage.api";
 import {removeRequest} from "./bll/requests.reducer";
+import {RequestMethod} from "./models/RequestMethod";
+import {ResponseRejectAction} from "./actions/responseReject.action";
+import {rollbackStorage} from "./dal/storageApi/rollbackStorage.api";
+import {addSnackbarErrorMessage} from "../bll/snackbar.reducer";
 
-const baseURL = 'http://185.250.46.14/api/simple-offline/';
+const baseURL = process.env.REACT_APP_SERVER_ENDPOINT || 'http://localhost:8080/api/simple-offline/';
 
 class HttpEngine {
     _instance;
@@ -31,26 +35,38 @@ class HttpEngine {
 
             const request = allTabRequests[0];
             const requestConfig = request.requestConfig;
-            const responseMethod = request.responseMethod as ResponseMethod;
+            const responseMethod = request.responseMethod as RequestMethod;
 
             try {
                 const response = await this._instance.request(requestConfig);
                 // @ts-ignore
-                ResponseActions[responseMethod](response.data, dispatch);
+                ResponseResolveAction[responseMethod](response.data, dispatch);
                 requestsStorage.removeRequest(request.requestId);
+                rollbackStorage.removeRollback(request.requestId);
                 dispatch(removeRequest(request.requestId));
 
             } catch (e) {
-
                 // ERROR PROCESSING - MUST BE FIX
-                break;
-            }
 
+                requestsStorage.removeRequest(request.requestId);
+
+                const rollbackData = rollbackStorage.getRollback(request.requestId);
+                if (!rollbackData) {
+                    dispatch(addSnackbarErrorMessage('Request rejected, rollback not found!'));
+                    return;
+                }
+
+                // @ts-ignore
+                ResponseRejectAction[responseMethod](rollbackData.statePart, dispatch);
+
+                rollbackStorage.removeRollback(request.requestId);
+
+                // break;
+            }
         }
 
         engineStorage.setEngineStatus(EngineStatus.WAITING);
     }
-
 }
 
 export const httpEngine = new HttpEngine();

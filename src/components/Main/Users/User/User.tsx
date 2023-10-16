@@ -7,7 +7,6 @@ import {SuperButton} from "../../../commons/SuperButton/SuperButton";
 
 type UserPropsType = IUserPart & {
     profileInitId: number
-    isFollowing: boolean
     follow: (id: number) => void
     unFollow: (id: number) => void
 };
@@ -18,7 +17,6 @@ export const User: React.FC<UserPropsType> = ({
                                                   username,
                                                   rating,
                                                   isFollowed,
-                                                  isFollowing,
                                                   follow,
                                                   unFollow
                                               }) => {
@@ -36,8 +34,8 @@ export const User: React.FC<UserPropsType> = ({
                 <p>Rating: <span>{rating}</span></p>
                 {profileInitId !== id
                 && (!isFollowed
-                    ? <SuperButton isLoading={isFollowing} onClick={() => follow(id)}>follow</SuperButton>
-                    : <SuperButton isLoading={isFollowing} onClick={() => unFollow(id)}>unFollow</SuperButton>)}
+                    ? <SuperButton onClick={() => follow(id)}>follow</SuperButton>
+                    : <SuperButton onClick={() => unFollow(id)}>unFollow</SuperButton>)}
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
-import {ResponseMethod} from "./responseActions";
 import {v1} from "uuid";
+import {RequestMethod} from "./RequestMethod";
 
 export enum HttpMethod {
     GET = "GET",
@@ -39,14 +39,14 @@ export class AppRequest {
     title: string;
     dateCreate: string;
     requestConfig: RequestConfig;
-    responseMethod: ResponseMethod;
+    responseMethod: RequestMethod;
     isPrimary: boolean;
 
     constructor(
         tabId: string,
         title: string,
         requestConfig: RequestConfig,
-        responseMethod: ResponseMethod,
+        responseMethod: RequestMethod,
         isPrimary: boolean = false
     ) {
         this.requestId = v1();

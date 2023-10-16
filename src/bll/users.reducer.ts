@@ -1,8 +1,8 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
-import {FollowAPI} from "../dal/html.api";
-import axios from "axios";
 import {RequestsQueueDAL} from "../offlineMode/dal/requestsQueue.dal";
+import {RootStateType} from "./store";
+import {getFullUsers} from "./users.selectors";
 
 export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
     | ReturnType<typeof setIsUsersFetching>
@@ -10,9 +10,17 @@ export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
     | ReturnType<typeof updateUser>
     | ReturnType<typeof setCurrentPage>
     | ReturnType<typeof setTotalPage>
-    | ReturnType<typeof updateUserFollowed>
-    | ReturnType<typeof addFollowingUser>
-    | ReturnType<typeof removeFollowingUser>;
+    | ReturnType<typeof updateUserFollowed>;
+
+enum UsersActions {
+    SET_IS_USERS_INIT = "SET_IS_USERS_INIT",
+    SET_IS_USERS_FETCHING = "SET_IS_USERS_FETCHING",
+    SET_USERS = "SET_USERS",
+    UPDATE_USER = "UPDATE_USER",
+    UPDATE_USER_FOLLOWED = "UPDATE_USER_FOLLOWED",
+    SET_CURRENT_PAGE = "SET_CURRENT_PAGE",
+    SET_TOTAL_PAGE = "SET_TOTAL_PAGE",
+}
 
 type UsersStateType = {
     isUsersPageInit: boolean
@@ -23,8 +31,6 @@ type UsersStateType = {
     countOnPage: number
     currentPage: number
     totalPage: number | null
-
-    followingUsers: Array<number>
 };
 
 const userInitState: UsersStateType = {
@@ -36,25 +42,25 @@ const userInitState: UsersStateType = {
     countOnPage: 4,
     currentPage: 1,
     totalPage: null,
-
-    followingUsers: [],
 };
 
 export const usersReducer = (state: UsersStateType = userInitState, action: UserActionsType): UsersStateType => {
     switch (action.type) {
-        case "USERS_SET_IS_USERS_INIT":
-        case "USERS_SET_IS_USERS_FETCHING":
-        case "USERS_SET_USERS":
-        case "USERS_SET_CURRENT_PAGE":
-        case "USERS_SET_TOTAL_PAGE":
+        case UsersActions.SET_IS_USERS_INIT:
+        case UsersActions.SET_IS_USERS_FETCHING:
+        case UsersActions.SET_USERS:
+        case UsersActions.SET_CURRENT_PAGE:
+        case UsersActions.SET_TOTAL_PAGE:
             return {...state, ...action.payload};
-        case "USERS_UPDATE_USER":
+        case UsersActions.UPDATE_USER:
             if (!state.users) return state;
-            return {...state, users: state.users?.map(u =>
+            return {
+                ...state, users: state.users?.map(u =>
                     u.id === action.payload.user.id
                         ? action.payload.user
-                        : u)};
-        case "USERS_UPDATE_USER_FOLLOWED":
+                        : u)
+            };
+        case UsersActions.UPDATE_USER_FOLLOWED:
             return {
                 ...state,
                 users: state.users!
@@ -62,10 +68,6 @@ export const usersReducer = (state: UsersStateType = userInitState, action: User
                         ? {...user, isFollowed: action.payload.isFollowed}
                         : user)
             };
-        case "USERS_ADD_FOLLOWING_USER":
-            return {...state, followingUsers: [...state.followingUsers, action.payload.id]};
-        case "USERS_REMOVE_FOLLOWING_USER":
-            return {...state, followingUsers: state.followingUsers.filter(id => id !== action.payload.id)};
         default:
             return state;
     }
@@ -73,115 +75,93 @@ export const usersReducer = (state: UsersStateType = userInitState, action: User
 
 export const setIsUsersPageInit = (isUsersPageInit: boolean) => {
     return {
-        type: 'USERS_SET_IS_USERS_INIT',
+        type: UsersActions.SET_IS_USERS_INIT,
         payload: {isUsersPageInit}
     } as const;
 };
 export const setIsUsersFetching = (isUsersFetching: boolean) => {
     return {
-        type: 'USERS_SET_IS_USERS_FETCHING',
+        type: UsersActions.SET_IS_USERS_FETCHING,
         payload: {isUsersFetching}
     } as const;
 };
 export const setUsers = (users: Array<IUser> | null) => {
     return {
-        type: 'USERS_SET_USERS',
+        type: UsersActions.SET_USERS,
         payload: {users}
     } as const;
 };
 export const updateUser = (user: IUser) => {
     return {
-        type: 'USERS_UPDATE_USER',
+        type: UsersActions.UPDATE_USER,
         payload: {user}
+    } as const;
+};
+export const updateUserFollowed = (id: number, isFollowed: boolean) => {
+    return {
+        type: UsersActions.UPDATE_USER_FOLLOWED,
+        payload: {id, isFollowed}
     } as const;
 };
 export const setTotalPage = (totalPage: number) => {
     return {
-        type: 'USERS_SET_TOTAL_PAGE',
+        type: UsersActions.SET_TOTAL_PAGE,
         payload: {totalPage}
     } as const;
 };
 export const setCurrentPage = (currentPage: number) => {
     return {
-        type: 'USERS_SET_CURRENT_PAGE',
+        type: UsersActions.SET_CURRENT_PAGE,
         payload: {currentPage}
     } as const;
 };
 
-export const updateUserFollowed = (id: number, isFollowed: boolean) => {
-    return {
-        type: 'USERS_UPDATE_USER_FOLLOWED',
-        payload: {id, isFollowed}
-    } as const;
-};
-export const addFollowingUser = (id: number) => {
-    return {
-        type: 'USERS_ADD_FOLLOWING_USER',
-        payload: {id}
-    } as const;
-};
-const removeFollowingUser = (id: number) => {
-    return {
-        type: 'USERS_REMOVE_FOLLOWING_USER',
-        payload: {id}
-    } as const;
-};
+export const getUsersTC = (count: number, page: number) =>
+    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
+        try {
+            // dispatch(setUsers(null));
+            dispatch(setIsUsersFetching(true));
 
-export const getUsersTC = (count: number, page: number) => async (dispatch: ThunkDispatchType) => {
-    try {
-        dispatch(setUsers(null));
-        dispatch(setIsUsersFetching(true));
+            // CREATE ROLLBACK
+            const state = getState();
+            const rollbackState: IUser[] | null = getFullUsers(state);
 
-        const pr = RequestsQueueDAL.getUsers(dispatch, count, page);
+            const pr = RequestsQueueDAL.getUsers(count, page, dispatch, rollbackState);
 
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-export const followUserTC = (id: number) => async (dispatch: ThunkDispatchType) => {
-    try {
-
-        const response = await FollowAPI.follow(id);
-
-    } catch (error) {
-        let errorMessage: string;
-        if (axios.isAxiosError(error)) {
-            errorMessage = error.response
-                ? error.response.data.message
-                : error.message;
-        } else {
-            //@ts-ignore
-            errorMessage = error.message;
+        } catch (error) {
+            console.log(error);
         }
-        console.log(errorMessage);
+    };
 
-        return Promise.reject(errorMessage);
-    }
-};
+export const followUserTC = (userId: number) =>
+    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
+        try {
 
-export const unFollowUserTC = (id: number) => async (dispatch: ThunkDispatchType) => {
-    try {
-        // dispatch(addFollowingUser(id));
+            // CREATE ROLLBACK
+            const state = getState();
+            const users: IUser[] | null = getFullUsers(state);
+            const rollbackData = users?.find(u => u.id === userId) || null;
 
-        const response = await FollowAPI.unFollow(id);
+            const pr = RequestsQueueDAL.follow(userId, dispatch, rollbackData);
 
-        // dispatch(removeFollowingUser(id));
-
-    } catch (error) {
-        let errorMessage: string;
-        if (axios.isAxiosError(error)) {
-            errorMessage = error.response
-                ? error.response.data.message
-                : error.message;
-        } else {
-            //@ts-ignore
-            errorMessage = error.message;
+        } catch (error) {
+            console.log(error);
         }
-        console.log(errorMessage);
+    };
 
-        // dispatch(removeUserIdFollowing(id));
+export const unFollowUserTC = (userId: number) =>
+    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
 
-        return Promise.reject(errorMessage);
-    }
-};
+        try {
+
+            // CREATE ROLLBACK
+            const state = getState();
+            const users: IUser[] | null = getFullUsers(state);
+            const rollbackData = users?.find(u => u.id === userId) || null;
+
+            const pr = RequestsQueueDAL.unFollow(userId, dispatch, rollbackData);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };

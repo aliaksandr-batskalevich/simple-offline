@@ -5,21 +5,16 @@ import {getIsProfileInit, getProfileData, getProfileInitId} from "../../../bll/p
 import {useAppDispatch} from "../../../utils/hooks/useAppDispatch";
 import {Preloader} from "../../commons/Preloader/Preloader";
 import {useParams} from "react-router-dom";
-import {getProfileTC, updateProfileFollowed} from "../../../bll/profile.reducer";
-import {addSnackbarErrorMessage, addSnackbarInfoMessage} from "../../../bll/snackbar.reducer";
+import {getProfileTC} from "../../../bll/profile.reducer";
 import defaultAvatar from '../../../assets/images/default-avatar.png';
 import {SuperButton} from "../../commons/SuperButton/SuperButton";
-import {followUserTC, unFollowUserTC} from "../../../bll/users.reducer";
-import {getFollowingUsers} from "../../../bll/users.selectors";
 
 export const Profile = () => {
 
     const isProfileInit = useSelector(getIsProfileInit);
     const profileInitId = useSelector(getProfileInitId);
     const profileData = useSelector(getProfileData);
-    const followingUsers = useSelector(getFollowingUsers);
     const {id} = useParams<{ id: string }>();
-    const isFollowing = followingUsers.includes(id ? +id : profileInitId);
 
     const dispatch = useAppDispatch();
 
@@ -53,8 +48,8 @@ export const Profile = () => {
                     <img src={defaultAvatar} alt="avatar"/>
                     {profileInitId !== profileData.id
                     && <div className={s.followButtonWrapper}>
-                        {!profileData.isFollowed && <SuperButton isLoading={isFollowing} onClick={followHandler}>follow</SuperButton>}
-                        {profileData.isFollowed && <SuperButton isLoading={isFollowing} onClick={unFollowHandler}>unFollow</SuperButton>}
+                        {!profileData.isFollowed && <SuperButton onClick={followHandler}>follow</SuperButton>}
+                        {profileData.isFollowed && <SuperButton onClick={unFollowHandler}>unFollow</SuperButton>}
                     </div>}
                 </div>
                 <div className={s.descriptionWrapper}>

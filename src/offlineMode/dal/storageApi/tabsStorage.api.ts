@@ -1,5 +1,5 @@
 import {v1} from "uuid";
-import {StorageKeys} from "./StorageTypes";
+import {StorageKeys} from "../../models/StorageTypes";
 
 class TabsStorage {
 

@@ -3,20 +3,14 @@ import s from './Users.module.scss';
 import {useSelector} from "react-redux";
 import {
     getCountOnPage,
-    getCurrentPage, getFollowingUsers,
+    getCurrentPage,
     getIsUsersFetching,
     getIsUsersPageInit,
-    getTotalPage, getUsers
+    getTotalPage,
+    getUsers
 } from "../../../bll/users.selectors";
 import {useAppDispatch} from "../../../utils/hooks/useAppDispatch";
-import {followUserTC, getUsersTC, setCurrentPage, unFollowUserTC, updateUserFollowed} from "../../../bll/users.reducer";
-import {
-    addSnackbarErrorMessage,
-    addSnackbarInfoMessage,
-    addSnackbarWarningMessage
-} from "../../../bll/snackbar.reducer";
-import SuperPaginator from "../../commons/Paginator/SuperPaginator";
-import {Preloader} from "../../commons/Preloader/Preloader";
+import {followUserTC, getUsersTC, setCurrentPage, unFollowUserTC} from "../../../bll/users.reducer";
 import {User} from "./User/User";
 import {getProfileInitId} from "../../../bll/profile.selectors";
 
@@ -29,7 +23,6 @@ export const Users = () => {
     const currentPage = useSelector(getCurrentPage);
     const totalPage = useSelector(getTotalPage);
     const users = useSelector(getUsers);
-    const followingUsers = useSelector(getFollowingUsers);
 
     const dispatch = useAppDispatch();
 
@@ -37,26 +30,10 @@ export const Users = () => {
         dispatch(setCurrentPage(currentPage));
     };
     const followHandler = (id: number) => {
-        // dispatch(updateUserFollowed(id, true));
-        // dispatch(followUserTC(id))
-        //     .catch((reason => {
-        //         if (reason === 'Offline mode!') {
-        //             dispatch(addSnackbarWarningMessage(reason));
-        //         } else {
-        //             dispatch(addSnackbarErrorMessage(reason));
-        //         }
-        //     }));
+        const pr = dispatch(followUserTC(id));
     };
     const unFollowHandler = (id: number) => {
-        // dispatch(updateUserFollowed(id, false));
-        // dispatch(unFollowUserTC(id))
-        //     .catch((reason => {
-        //         if (reason === 'Offline mode!') {
-        //             dispatch(addSnackbarWarningMessage(reason));
-        //         } else {
-        //             dispatch(addSnackbarErrorMessage(reason));
-        //         }
-        //     }));
+        const pr = dispatch(unFollowUserTC(id));
     };
 
     useEffect(() => {
@@ -68,7 +45,6 @@ export const Users = () => {
             key={user.id}
             {...user}
             profileInitId={profileInitId}
-            isFollowing={followingUsers.includes(user.id)}
             follow={followHandler}
             unFollow={unFollowHandler}
         />)
