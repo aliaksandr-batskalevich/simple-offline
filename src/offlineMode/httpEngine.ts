@@ -11,7 +11,7 @@ import {ResponseRejectAction} from "./actions/responseReject.action";
 import {rollbackStorage} from "./dal/storageApi/rollbackStorage.api";
 import {addSnackbarErrorMessage} from "../bll/snackbar.reducer";
 
-const baseURL = process.env.REACT_APP_SERVER_ENDPOINT || 'http://localhost:8080/api/simple-offline/';
+const baseURL = process.env.REACT_APP_SERVER_ENDPOINT || 'http://185.250.46.14/api/simple-offline/';
 
 class HttpEngine {
     _instance;
