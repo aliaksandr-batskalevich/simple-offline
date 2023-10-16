@@ -46,11 +46,11 @@ export const Profile = () => {
             ? <div className={s.profileWrapper}>
                 <div className={s.avatarWrapper}>
                     <img src={defaultAvatar} alt="avatar"/>
-                    {profileInitId !== profileData.id
-                    && <div className={s.followButtonWrapper}>
-                        {!profileData.isFollowed && <SuperButton onClick={followHandler}>follow</SuperButton>}
-                        {profileData.isFollowed && <SuperButton onClick={unFollowHandler}>unFollow</SuperButton>}
-                    </div>}
+                    {/*{profileInitId !== profileData.id*/}
+                    {/*&& <div className={s.followButtonWrapper}>*/}
+                    {/*    {!profileData.isFollowed && <SuperButton onClick={followHandler}>follow</SuperButton>}*/}
+                    {/*    {profileData.isFollowed && <SuperButton onClick={unFollowHandler}>unFollow</SuperButton>}*/}
+                    {/*</div>}*/}
                 </div>
                 <div className={s.descriptionWrapper}>
                     <div className={s.profileInfoWrapper}>
