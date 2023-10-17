@@ -35,12 +35,13 @@ class HttpEngine {
 
             const request = allTabRequests[0];
             const requestConfig = request.requestConfig;
-            const responseMethod = request.responseMethod as RequestMethod;
+            const requestMethod = request.requestMethod as RequestMethod;
 
             try {
                 const response = await this._instance.request(requestConfig);
+
                 // @ts-ignore
-                ResponseResolveAction[responseMethod](response.data, dispatch);
+                ResponseResolveAction[requestMethod](response.data, dispatch);
                 requestsStorage.removeRequest(request.requestId);
                 rollbackStorage.removeRollback(request.requestId);
                 dispatch(removeRequest(request.requestId));
@@ -57,7 +58,7 @@ class HttpEngine {
                 }
 
                 // @ts-ignore
-                ResponseRejectAction[responseMethod](rollbackData.statePart, dispatch);
+                ResponseRejectAction[requestMethod](rollbackData.statePart, dispatch);
 
                 rollbackStorage.removeRollback(request.requestId);
 

@@ -62,9 +62,8 @@ export class RequestsQueueDAL {
             true,
             userId
         );
-        const responseMethod = RequestMethod.GET_USER;
 
-        const request = new AppRequest(tabId, `GET user ${userId}`, requestConfig, responseMethod, true);
+        const request = new AppRequest(tabId, `GET user ${userId}`, requestConfig, RequestMethod.GET_USER, true);
         const rollback = new Rollback(tabId, request.requestId, rollbackState);
 
         this._addRequestToQueue(request, dispatch);
@@ -81,9 +80,8 @@ export class RequestsQueueDAL {
             undefined,
             {count, page},
         );
-        const responseMethod = RequestMethod.GET_USERS;
 
-        const request = new AppRequest(tabId, 'GET ALL USERS', requestConfig, responseMethod, true);
+        const request = new AppRequest(tabId, 'GET ALL USERS', requestConfig, RequestMethod.GET_USERS, true);
         const rollback = new Rollback(tabId, request.requestId, rollbackState);
 
         this._addRequestToQueue(request, dispatch);
@@ -101,9 +99,8 @@ export class RequestsQueueDAL {
             true,
             userId
         );
-        const responseMethod = RequestMethod.FOLLOW;
 
-        const request = new AppRequest(tabId, `FOLLOW user ${userId}`, requestConfig, responseMethod);
+        const request = new AppRequest(tabId, `FOLLOW user ${userId}`, requestConfig, RequestMethod.FOLLOW);
         const rollback = new Rollback(tabId, request.requestId, rollbackState);
 
         this._addRequestToQueue(request, dispatch);
@@ -122,9 +119,8 @@ export class RequestsQueueDAL {
             true,
             userId
         );
-        const responseMethod = RequestMethod.UNFOLLOW;
 
-        const request = new AppRequest(tabId, `UNFOLLOW user ${userId}`, requestConfig, responseMethod);
+        const request = new AppRequest(tabId, `UNFOLLOW user ${userId}`, requestConfig, RequestMethod.UNFOLLOW);
         const rollback = new Rollback(tabId, request.requestId, rollbackState);
 
         this._addRequestToQueue(request, dispatch);

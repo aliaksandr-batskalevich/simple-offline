@@ -39,14 +39,14 @@ export class AppRequest {
     title: string;
     dateCreate: string;
     requestConfig: RequestConfig;
-    responseMethod: RequestMethod;
+    requestMethod: RequestMethod;
     isPrimary: boolean;
 
     constructor(
         tabId: string,
         title: string,
         requestConfig: RequestConfig,
-        responseMethod: RequestMethod,
+        requestMethod: RequestMethod,
         isPrimary: boolean = false
     ) {
         this.requestId = v1();
@@ -54,7 +54,7 @@ export class AppRequest {
         this.title = title;
         this.dateCreate = new Date().toLocaleTimeString();
         this.requestConfig = requestConfig;
-        this.responseMethod = responseMethod;
+        this.requestMethod = requestMethod;
         this.isPrimary = isPrimary;
     }
 
