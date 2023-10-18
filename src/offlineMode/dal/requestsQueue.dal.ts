@@ -39,7 +39,6 @@ export class RequestsQueueDAL {
 
         // @ts-ignore
         RollbackAction[request.requestMethod](rollback.statePart, dispatch);
-
     }
 
     static removeAllTabRequestsWithRollback(dispatch: ThunkDispatchType) {

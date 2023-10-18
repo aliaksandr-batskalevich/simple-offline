@@ -18,4 +18,8 @@ export class RollbackAction {
         dispatch(updateUser(user));
     }
 
+    static [RequestMethod.UNFOLLOW](user: IUser, dispatch: ThunkDispatchType) {
+        dispatch(updateUser(user));
+    }
+
 }
