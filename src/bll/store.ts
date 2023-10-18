@@ -6,6 +6,11 @@ import {UserActionsType, usersReducer} from "./users.reducer";
 import {AppActionsType, appReducer} from "../offlineMode/bll/app.reducer";
 import {RequestsActionsType, requestsReducer} from "../offlineMode/bll/requests.reducer";
 
+import {
+    createStateSyncMiddleware,
+    initMessageListener,
+} from "redux-state-sync";
+
 export type RootStateType = ReturnType<typeof rootReducer>;
 export type RootActionsType = AppActionsType
     | ProfileActionsType
@@ -21,7 +26,11 @@ const rootReducer = combineReducers({
     requests: requestsReducer,
 });
 
-export const store = legacy_createStore(rootReducer, applyMiddleware(thunkMiddleware));
+const stateSyncMiddleware = createStateSyncMiddleware();
+
+export const store = legacy_createStore(rootReducer, applyMiddleware(thunkMiddleware, stateSyncMiddleware));
+
+initMessageListener(store);
 
 // @ts-ignore
 window.appStore = store;

@@ -41,14 +41,22 @@ class RequestsStorage {
 
     public removeRequest(requestId: string) {
         let requests = this.getAllRequests();
+        const request = requests.find(r => r.requestId === requestId);
+        if (!request) return;
+
         requests = requests.filter(r => r.requestId !== requestId);
         localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requests));
+        return request;
     }
 
     public removeAllTabRequest(tabId: string) {
         let requests = this.getAllRequests();
+
+        const allTabRequests = requests.filter(r => r.tabId === tabId);
+
         requests = requests.filter(r => r.tabId !== tabId);
         localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requests));
+        return allTabRequests;
     }
 
     public removeAllRequests() {

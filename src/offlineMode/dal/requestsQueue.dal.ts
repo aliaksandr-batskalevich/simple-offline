@@ -10,6 +10,7 @@ import {RequestMethod} from "../models/RequestMethod";
 import {Rollback} from "../models/Rollback";
 import {rollbackStorage} from "./storageApi/rollbackStorage.api";
 import {updateUserFollowed} from "../../bll/users.reducer";
+import {RollbackAction} from "../actions/rollback.action";
 
 export class RequestsQueueDAL {
 
@@ -23,33 +24,51 @@ export class RequestsQueueDAL {
         const pr = httpEngine.start(dispatch);
     }
 
-    static getAllTabRequests() {
-        const tabId = tabsStorage.getTabId();
-        return requestsStorage.getAllTabRequests(tabId);
+    static getTabId() {
+        return  tabsStorage.getTabId();
     }
 
-    static removeRequest(requestId: string) {
-        requestsStorage.removeRequest(requestId);
-        rollbackStorage.removeRollback(requestId);
+    static removeRequestWithRollback(requestId: string, dispatch: ThunkDispatchType) {
+        const request = requestsStorage.removeRequest(requestId);
+        if (!request) return;
+
+        // ROLLBACK APP DATA
+        // get rollbackData and REMOVE it from storage
+        const rollback = rollbackStorage.removeRollback(requestId);
+        if (!rollback) return;
+
+        // @ts-ignore
+        RollbackAction[request.requestMethod](rollback.statePart, dispatch);
+
     }
 
-    static removeAllTabRequests() {
+    static removeAllTabRequestsWithRollback(dispatch: ThunkDispatchType) {
         const tabId = tabsStorage.getTabId();
-        requestsStorage.removeAllTabRequest(tabId);
-        rollbackStorage.removeAllTabRollbacks(tabId);
+        const allTabRequests = requestsStorage.removeAllTabRequest(tabId);
+
+        // ROLLBACK APP DATA
+        allTabRequests.forEach(r => {
+            const rollback = rollbackStorage.removeRollback(r.requestId);
+            if (!rollback) return;
+
+            // @ts-ignore
+            RollbackAction[r.requestMethod](rollback.statePart, dispatch);
+        });
     }
 
     static replaceRequestsToNextTab() {
-        const tabId = tabsStorage.getTabId();
-        const nextTabId = tabsStorage.removeTabAndGetNext(tabId);
-        if (!nextTabId) {
+        const currentTabId = tabsStorage.getTabId();
+        const targetTabId = tabsStorage.removeTabAndGetNext(currentTabId);
+        if (!targetTabId) {
             requestsStorage.removeAllRequests();
             rollbackStorage.removeAllRollbacks();
             return;
         }
 
-        requestsStorage.replaceRequests(tabId, nextTabId);
-        rollbackStorage.replaceRollbacks(tabId, nextTabId);
+        requestsStorage.replaceRequests(currentTabId, targetTabId);
+        rollbackStorage.replaceRollbacks(currentTabId, targetTabId);
+
+        return {currentTabId, targetTabId};
     }
 
     // ASYNC METHODS

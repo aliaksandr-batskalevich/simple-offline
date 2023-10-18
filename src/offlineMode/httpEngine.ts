@@ -51,7 +51,8 @@ class HttpEngine {
 
                 requestsStorage.removeRequest(request.requestId);
 
-                const rollbackData = rollbackStorage.getRollback(request.requestId);
+                // get rollbackData and REMOVE it from storage
+                const rollbackData = rollbackStorage.removeRollback(request.requestId);
                 if (!rollbackData) {
                     dispatch(addSnackbarErrorMessage('Request rejected, rollback not found!'));
                     return;
@@ -59,8 +60,6 @@ class HttpEngine {
 
                 // @ts-ignore
                 ResponseRejectAction[requestMethod](rollbackData.statePart, dispatch);
-
-                rollbackStorage.removeRollback(request.requestId);
 
                 // break;
             }

@@ -19,18 +19,6 @@ class RollbackStorage {
         return JSON.parse(localData) as Rollback[];
     }
 
-    public getAllTabRollbacks(tabId: string) {
-        const allRollbacks = this.getAllRollbacks();
-
-        return allRollbacks.filter(r => r.tabId === tabId);
-    }
-
-    public getRollback(requestId: string): Rollback | undefined {
-        const allRollbacks = this.getAllRollbacks();
-
-        return allRollbacks.find(r => r.requestId === requestId);
-    }
-
     public addRollback(rollback: Rollback) {
         const allRollbacks = this.getAllRollbacks();
 
@@ -40,14 +28,13 @@ class RollbackStorage {
 
     public removeRollback(requestId: string) {
         let allRollbacks = this.getAllRollbacks();
+
+        const rollback = allRollbacks.find(r => r.requestId === requestId);
+        if (!rollback) return;
+
         allRollbacks = allRollbacks.filter(r => r.requestId !== requestId);
         localStorage.setItem(StorageKeys.ROLLBACKS, JSON.stringify(allRollbacks));
-    }
-
-    public removeAllTabRollbacks(tabId: string) {
-        let allRollbacks = this.getAllRollbacks();
-        allRollbacks = allRollbacks.filter(r => r.tabId !== tabId);
-        localStorage.setItem(StorageKeys.ROLLBACKS, JSON.stringify(allRollbacks));
+        return rollback;
     }
 
     public removeAllRollbacks() {

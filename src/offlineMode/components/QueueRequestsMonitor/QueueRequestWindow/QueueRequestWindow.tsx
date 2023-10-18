@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import s from './QueueRequestWindow.module.scss';
 import {RequestElement} from "./RequestElement/RequestElement";
 import {useAppDispatch} from "../../../../utils/hooks/useAppDispatch";
 import {removeAllTabRequestsTC, removeRequestTC} from "../../../bll/requests.reducer";
 import {AppRequest} from "../../../models/AppRequest";
+import {RequestsQueueDAL} from "../../../dal/requestsQueue.dal";
 
 interface QueueRequestWindowProps {
     requests: AppRequest[]
@@ -11,8 +12,9 @@ interface QueueRequestWindowProps {
 
 export const QueueRequestWindow: React.FC<QueueRequestWindowProps> = ({requests}) => {
 
-    const dispatch = useAppDispatch();
+    const [tabId] = useState<string>(RequestsQueueDAL.getTabId());
 
+    const dispatch = useAppDispatch();
 
     const removeRequestHandler = (requestId: string) => {
         dispatch(removeRequestTC(requestId));
@@ -22,7 +24,9 @@ export const QueueRequestWindow: React.FC<QueueRequestWindowProps> = ({requests}
         dispatch(removeAllTabRequestsTC());
     };
 
-    const requestsElementsToRender = requests.map(r => <RequestElement key={r.requestId} removeRequest={removeRequestHandler} {...r}/>);
+    const requestsElementsToRender = requests
+        .filter(r => r.tabId === tabId)
+        .map(r => <RequestElement key={r.requestId} removeRequest={removeRequestHandler} {...r}/>);
 
     return (
         <div className={s.queueRequestWindow}>
