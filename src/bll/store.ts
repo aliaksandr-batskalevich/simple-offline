@@ -3,8 +3,8 @@ import thunkMiddleware from 'redux-thunk';
 import {ProfileActionsType, profileReducer} from "./profile.reducer";
 import {SnackbarActionsType, snackbarReducer} from "./snackbar.reducer";
 import {UserActionsType, usersReducer} from "./users.reducer";
-import {AppActionsType, appReducer} from "../offlineMode/bll/app.reducer";
-import {RequestsActionsType, requestsReducer} from "../offlineMode/bll/requests.reducer";
+import {AppActionsType, appReducer} from "./app.reducer";
+import {RequestsActionsType, requestsReducer} from "../requestQueue/bll/requests.reducer";
 
 import {
     createStateSyncMiddleware,

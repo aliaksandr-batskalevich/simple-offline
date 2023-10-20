@@ -1,0 +1,23 @@
+@import "../../difinitions";
+
+.errorWrapper {
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h2 {
+    text-decoration: underline;
+    color: $color-font-white;
+  }
+
+  .errorLogoWrapper {
+
+    img {
+      display: inline-block;
+      height: 200px;
+    }
+  }
+}

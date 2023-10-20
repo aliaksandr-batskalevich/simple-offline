@@ -1,8 +1,8 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
-import {RequestsQueueDAL} from "../offlineMode/dal/requestsQueue.dal";
 import {RootStateType} from "./store";
 import {getFullUsers} from "./users.selectors";
+import {AsyncAppDAL} from "../requestQueue/dal/asyncApp.dal";
 
 export type UserActionsType = ReturnType<typeof setIsUsersPageInit>
     | ReturnType<typeof setIsUsersFetching>
@@ -117,51 +117,35 @@ export const setCurrentPage = (currentPage: number) => {
 };
 
 export const getUsersTC = (count: number, page: number) =>
-    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-        try {
-            // dispatch(setUsers(null));
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
+
             dispatch(setIsUsersFetching(true));
 
             // CREATE ROLLBACK
             const state = getState();
             const rollbackState: IUser[] | null = getFullUsers(state);
 
-            const pr = RequestsQueueDAL.getUsers(count, page, dispatch, rollbackState);
-
-        } catch (error) {
-            console.log(error);
-        }
+            AsyncAppDAL.getUsers(dispatch, rollbackState, count, page);
     };
 
 export const followUserTC = (userId: number) =>
-    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-        try {
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
 
             // CREATE ROLLBACK
             const state = getState();
             const users: IUser[] | null = getFullUsers(state);
             const rollbackData = users?.find(u => u.id === userId) || null;
 
-            const pr = RequestsQueueDAL.follow(userId, dispatch, rollbackData);
-
-        } catch (error) {
-            console.log(error);
-        }
+            AsyncAppDAL.follow(dispatch, rollbackData, userId);
     };
 
 export const unFollowUserTC = (userId: number) =>
-    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-
-        try {
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
 
             // CREATE ROLLBACK
             const state = getState();
             const users: IUser[] | null = getFullUsers(state);
             const rollbackData = users?.find(u => u.id === userId) || null;
 
-            const pr = RequestsQueueDAL.unFollow(userId, dispatch, rollbackData);
-
-        } catch (error) {
-            console.log(error);
-        }
+            AsyncAppDAL.unFollow(dispatch, rollbackData, userId);
     };

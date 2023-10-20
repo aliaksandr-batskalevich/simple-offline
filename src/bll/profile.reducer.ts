@@ -1,8 +1,8 @@
 import {IUser} from "../models/IUser";
 import {ThunkDispatchType} from "../utils/hooks/useAppDispatch";
-import {RequestsQueueDAL} from "../offlineMode/dal/requestsQueue.dal";
 import {RootStateType} from "./store";
 import {getProfileData} from "./profile.selectors";
+import {AsyncAppDAL} from "../requestQueue/dal/asyncApp.dal";
 
 export type ProfileActionsType = ReturnType<typeof setIsProfileInit>
     | ReturnType<typeof setProfileData>
@@ -65,8 +65,8 @@ export const updateProfileFollowed = (isFollowed: boolean) => {
 };
 
 export const getProfileTC = (id: number) =>
-    async (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-        try {
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
+
             dispatch(setProfileData(null));
             dispatch(setIsProfileInit(false));
 
@@ -75,9 +75,5 @@ export const getProfileTC = (id: number) =>
             const rollbackState = getProfileData(state);
 
             // ADD REQUEST TO QUEUE
-            const pr = RequestsQueueDAL.getUser(id, dispatch, rollbackState);
-
-        } catch (error) {
-            console.log(error);
-        }
+            AsyncAppDAL.getUser(dispatch, rollbackState, id);
     };
