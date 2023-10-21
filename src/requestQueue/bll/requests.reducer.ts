@@ -5,13 +5,13 @@ import {AppRequest} from "../models/AppRequest";
 
 export type RequestsActionsType = ReturnType<typeof addRequest>
     | ReturnType<typeof removeRequest>
-    | ReturnType<typeof removeAllRequests>
+    | ReturnType<typeof removeAllTabRequests>
     | ReturnType<typeof replaceRequestsToNextTab>;
 
 enum RequestsActions {
     ADD_REQUEST = "ADD_REQUEST",
     REMOVE_REQUEST = "REMOVE_REQUEST",
-    REMOVE_ALL_REQUESTS = "REMOVE_ALL_REQUESTS",
+    REMOVE_ALL_TAB_REQUESTS = "REMOVE_ALL_TAB_REQUESTS",
     REPLACE_REQUESTS_TO_NEXT_TAB = "REPLACE_REQUESTS_TO_NEXT_TAB",
 }
 
@@ -29,8 +29,8 @@ export const requestsReducer = (state: RequestsStateType = requestsInitState, ac
             return {...state, requests: [...state.requests, action.payload.request]};
         case RequestsActions.REMOVE_REQUEST:
             return {...state, requests: state.requests.filter(r => r.requestId !== action.payload.requestId)};
-        case RequestsActions.REMOVE_ALL_REQUESTS:
-            return {...state, requests: []};
+        case RequestsActions.REMOVE_ALL_TAB_REQUESTS:
+            return {...state, requests: state.requests.filter(r => r.tabId !== action.payload.tabId)};
         case RequestsActions.REPLACE_REQUESTS_TO_NEXT_TAB:
             return {
                 ...state,
@@ -58,9 +58,10 @@ export const removeRequest = (requestId: string) => {
     } as const;
 };
 
-const removeAllRequests = () => {
+const removeAllTabRequests = (tabId: string) => {
     return {
-        type: RequestsActions.REMOVE_ALL_REQUESTS
+        type: RequestsActions.REMOVE_ALL_TAB_REQUESTS,
+        payload: {tabId}
     } as const;
 };
 
@@ -82,8 +83,9 @@ export const removeRequestTC = (requestId: string) => (dispatch: ThunkDispatchTy
 };
 
 export const removeAllTabRequestsTC = () => (dispatch: ThunkDispatchType) => {
-    SyncAppDAL.removeAllTabRequestsWithRollback(dispatch);
-    dispatch(removeAllRequests());
+    const tabId = SyncAppDAL.getTabId();
+    SyncAppDAL.removeAllTabRequestsWithRollback(tabId, dispatch);
+    dispatch(removeAllTabRequests(tabId));
 };
 
 export const replaceRequestsToNextTabTC = () => (dispatch: ThunkDispatchType) => {

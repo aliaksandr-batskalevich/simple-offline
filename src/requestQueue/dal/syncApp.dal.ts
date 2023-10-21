@@ -23,8 +23,7 @@ export class SyncAppDAL {
         rollbackAction(rollback.statePart, dispatch);
     }
 
-    static removeAllTabRequestsWithRollback(dispatch: ThunkDispatchType) {
-        const tabId = tabsStorage.getTabId();
+    static removeAllTabRequestsWithRollback(tabId: string, dispatch: ThunkDispatchType) {
         const allTabRequests = requestsStorage.removeAllTabRequest(tabId);
 
         // ROLLBACK APP DATA
