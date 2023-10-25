@@ -8,8 +8,6 @@ import {tabsStorage} from "../dal/storageApi/tabsStorage.api";
 import {removeRequest} from "../bll/requests.reducer";
 import {RequestMethod} from "../models/RequestMethod";
 import {ResponseRejectAction} from "../actions/responseReject.action";
-import {rollbackStorage} from "../dal/storageApi/rollbackStorage.api";
-import {addSnackbarErrorMessage} from "../../bll/snackbar.reducer";
 
 const baseURL = process.env.REACT_APP_SERVER_ENDPOINT || 'http://185.250.46.14/api/simple-offline/';
 
@@ -34,6 +32,8 @@ class HttpEngine {
             if (!window.navigator.onLine) break;
 
             const request = allTabRequests[0];
+            requestsStorage.changeRequestProgress(request.requestId, true);
+
             const requestConfig = request.requestConfig;
             const requestMethod = request.requestMethod as RequestMethod;
 
@@ -45,29 +45,18 @@ class HttpEngine {
 
                 responseResolveAction(response.data, dispatch);
 
-                requestsStorage.removeRequest(request.requestId);
-                rollbackStorage.removeRollback(request.requestId);
-                dispatch(removeRequest(request.requestId));
-
             } catch (e) {
                 // ERROR PROCESSING - MUST BE FIX
-
-                requestsStorage.removeRequest(request.requestId);
-
-                // get rollbackData and REMOVE it from storage
-                const rollbackData = rollbackStorage.removeRollback(request.requestId);
-                if (!rollbackData) {
-                    dispatch(addSnackbarErrorMessage('Request rejected, rollback not found!'));
-                    continue;
-                }
 
                 const responseRejectAction = ResponseRejectAction[requestMethod];
                 if (!responseRejectAction) continue;
 
-                responseRejectAction(rollbackData.statePart, dispatch);
-
-                // break;
+                responseRejectAction(request.rollback.payload, dispatch);
             }
+
+            requestsStorage.removeRequest(request.requestId);
+            dispatch(removeRequest(request.requestId));
+
         }
 
         engineStorage.setEngineStatus(EngineStatus.WAITING);

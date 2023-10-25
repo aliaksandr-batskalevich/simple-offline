@@ -27,16 +27,8 @@ class RequestsStorage {
         return requests;
     }
 
-    public addRequest(request: AppRequest): number | undefined {
-        const requests = this.getAllRequests();
-
-        // check primary requests
-        if (requests.find(r => r.tabId === request.tabId && r.isPrimary)) return;
-
-        const length = requests.push(request);
+    public setRequests(requests: AppRequest[]) {
         localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requests));
-
-        return length;
     }
 
     public removeRequest(requestId: string) {
@@ -45,7 +37,7 @@ class RequestsStorage {
         if (!request) return;
 
         requests = requests.filter(r => r.requestId !== requestId);
-        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requests));
+        this.setRequests(requests);
         return request;
     }
 
@@ -55,18 +47,24 @@ class RequestsStorage {
         const allTabRequests = requests.filter(r => r.tabId === tabId);
 
         requests = requests.filter(r => r.tabId !== tabId);
-        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(requests));
+        this.setRequests(requests);
         return allTabRequests;
     }
 
     public removeAllRequests() {
-        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify([]));
+        this.setRequests([]);
     }
 
     public replaceRequests(currentTabId: string, targetTabId: string) {
-        let allRequests = this.getAllRequests();
-        allRequests.map(req => req.tabId === currentTabId ? req.tabId = targetTabId : req);
-        localStorage.setItem(StorageKeys.REQUESTS, JSON.stringify(allRequests));
+        let requests = this.getAllRequests();
+        requests.map(req => req.tabId === currentTabId ? req.tabId = targetTabId : req);
+        this.setRequests(requests);
+    }
+
+    public changeRequestProgress(requestId: string, inProgress: boolean) {
+        let requests = this.getAllRequests();
+        requests = requests.map(r => r.requestId === requestId ? {...r, inProgress} : r);
+        this.setRequests(requests);
     }
 }
 

@@ -78,13 +78,13 @@ export const startHttpEngineTC = () => (dispatch: ThunkDispatchType) => {
 };
 
 export const removeRequestTC = (requestId: string) => (dispatch: ThunkDispatchType) => {
-    SyncAppDAL.removeRequestWithRollback(requestId, dispatch);
+    SyncAppDAL.removeRequest(requestId, dispatch);
     dispatch(removeRequest(requestId));
 };
 
 export const removeAllTabRequestsTC = () => (dispatch: ThunkDispatchType) => {
     const tabId = SyncAppDAL.getTabId();
-    SyncAppDAL.removeAllTabRequestsWithRollback(tabId, dispatch);
+    SyncAppDAL.removeAllTabRequests(tabId, dispatch);
     dispatch(removeAllTabRequests(tabId));
 };
 

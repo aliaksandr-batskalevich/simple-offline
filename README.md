@@ -1,46 +1,39 @@
-# Getting Started with Create React App
+В данном приложении показан способ реализации работы приложения CRA в оффлойн-режиме.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Для этого все запросы поступают во встроенный DAL, который формирует из запросов очередь.
+(все файлы, касающиеся технологии очереди запросов находятся в каталоге requestQueue)
 
-## Available Scripts
+Приложение контролирует состояние соединение с сетью при помощи нативных событий window (offline & online), на которые приложение подписывается через кастомный хук useControlConnection.
 
-In the project directory, you can run:
+В технологии реализован контроль вкладок, в которых выполнялись запросы в оффлайне (при переходе в онлайн запросы отправляет та вкладка, которая его создавала - для предотвращения дублирования). При закрытии такой вкладки ее запросы переопределяются другой вкладке. Если при закрытии вкладки другие (того же домена) отсутствуют - все запросы оффлайн-режима очищаются (возможно реализовать иной сценарий).
 
-### `yarn start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+АЛГОРИТМ ДОБАВЛЕНИЯ НОВОГО ТИПА ЗАПРОСА
+   1. Добавить в enum RequestMethod тип запроса.
+   2. Создать интерфейс для типизации хранимого payload для rollback.
+   3. Добавить в class AsyncAppDAL статический метод, в котором:
+      3.1. Создается title запроса (используется для идентификации запроса, а также отображения его в компоненте QueueRequestsMonitor), используя приватный статический метод _requestTitleCreator (title состоит из 3-х частей: effect (действие), operand (сущность, над которой выполняется действие), id (идентификатор сущности, необязательный аргумент)).
+      3.2. Создается requestConfig через class RequestConfig.
+      3.3. Создается rollback через class Rollback.
+      3.4. Создается request через class AppRequest.
+   4. Добавить в class BllAction метод для изменения стэйта приложения (до направления запроса на сервер).
+   5. Добавить в class RollbackAction метод для выполнения rollback стэйта приложения (для случая получения отрицательного ответа сервера на запрос или отмены запроса пользователем). Для выполнения rollback в некоторых случаях понадобится payload, хранение которого предусмотрено в экземпляре class AppRequest.
+   6. Добавить в class ResponseResolveAction метод для обработки положительного ответа сервера на данный запрос (при необходимости, изменение стэйта приложения).
+   7. Добавить в class ResponseRejectAction метод для обработки отрицательного ответа сервера на данный запрос.
+   8. Добавить пару в объекты optimizationPairs и destroyPairs (зависимость оптимизирования запросов). Если при добавлении запроса в очередь в ней находится запрос, косающийся той-же сущности и тому же экземпляру и рассматриваемый запрос еще не обрабатывается алгоритмом httpEngine (свойство inProgress экземпляра AppRequest имеет значение false), два запроса оптимизируются по кейсам:
+      8.1. Если в очереди имеется запрос CREATE или UPDATE и в очередь добавляется запрос UPDATE - имеющийся запрос в очереди обновляет свои payload для отправки на сервер с учетов последнего запроса (новый запрос в очередь не добавляется), rollback запроса при этом остается прежним.
+      8.2. Если в очереди имеется запрос CREATE и в очередь добавляется запрос DELETE - имеющийся запрос (CREATE) из очереди удаляется (новый запрос в очередь не добавляется).
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
-### `yarn test`
+АЛГОРИТМ ОТПРАВКИ ЗАПРОСА
+Все запросы на сервер выполняются через redux, используя redux-thunk.
+Режим отправки запросов из очереди используется только после логинизации пользователя, до этого все запросы отправляется через axios-auth-instance.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Для добавления запроса в очередь необходимо в соответствующей thunkCreator-функции:
+   1. Вызвать соответствующий статический метод класса AsyncAppDAL и передать в параметры:
+      dispatch;
+      getState;
+      данные для формирования payload запроса и изменения стэйта приложения;
 
-### `yarn build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+Для контроля состояния и редактирования очереди запросов предусмотрен QueueRequestMonitor, функционал которого позволяет просматривать текущую очередь запросов открытой вкладки, а также удалять запросы по одному либо все сразу (с выполнением rollback стэйта).

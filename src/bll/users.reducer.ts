@@ -117,35 +117,13 @@ export const setCurrentPage = (currentPage: number) => {
 };
 
 export const getUsersTC = (count: number, page: number) =>
-    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-
-            dispatch(setIsUsersFetching(true));
-
-            // CREATE ROLLBACK
-            const state = getState();
-            const rollbackState: IUser[] | null = getFullUsers(state);
-
-            AsyncAppDAL.getUsers(dispatch, rollbackState, count, page);
-    };
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) =>
+        AsyncAppDAL.getUsers(dispatch, getState, count, page);
 
 export const followUserTC = (userId: number) =>
-    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-
-            // CREATE ROLLBACK
-            const state = getState();
-            const users: IUser[] | null = getFullUsers(state);
-            const rollbackData = users?.find(u => u.id === userId) || null;
-
-            AsyncAppDAL.follow(dispatch, rollbackData, userId);
-    };
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) =>
+        AsyncAppDAL.follow(dispatch, getState, userId);
 
 export const unFollowUserTC = (userId: number) =>
-    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-
-            // CREATE ROLLBACK
-            const state = getState();
-            const users: IUser[] | null = getFullUsers(state);
-            const rollbackData = users?.find(u => u.id === userId) || null;
-
-            AsyncAppDAL.unFollow(dispatch, rollbackData, userId);
-    };
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) =>
+        AsyncAppDAL.unFollow(dispatch, getState, userId);

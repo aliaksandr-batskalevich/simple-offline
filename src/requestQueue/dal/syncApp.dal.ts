@@ -1,7 +1,6 @@
 import {ThunkDispatchType} from "../../utils/hooks/useAppDispatch";
 import {requestsStorage} from "./storageApi/requestsStorage.api";
 import {tabsStorage} from "./storageApi/tabsStorage.api";
-import {rollbackStorage} from "./storageApi/rollbackStorage.api";
 import {RollbackAction} from "../actions/rollback.action";
 
 export class SyncAppDAL {
@@ -10,29 +9,26 @@ export class SyncAppDAL {
         return  tabsStorage.getTabId();
     }
 
-    static removeRequestWithRollback(requestId: string, dispatch: ThunkDispatchType) {
+    static removeRequest(requestId: string, dispatch: ThunkDispatchType) {
         const request = requestsStorage.removeRequest(requestId);
         if (!request) return;
 
         // ROLLBACK APP DATA
-        // get rollbackData and REMOVE it from storage
         const rollbackAction = RollbackAction[request.requestMethod];
-        const rollback = rollbackStorage.removeRollback(requestId);
-        if (!rollbackAction || !rollback) return;
+        if (!rollbackAction) return;
 
-        rollbackAction(rollback.statePart, dispatch);
+        rollbackAction(request.rollback.payload, dispatch);
     }
 
-    static removeAllTabRequestsWithRollback(tabId: string, dispatch: ThunkDispatchType) {
+    static removeAllTabRequests(tabId: string, dispatch: ThunkDispatchType) {
         const allTabRequests = requestsStorage.removeAllTabRequest(tabId);
 
         // ROLLBACK APP DATA
         allTabRequests.forEach(r => {
             const rollbackAction = RollbackAction[r.requestMethod];
-            const rollback = rollbackStorage.removeRollback(r.requestId);
-            if (!rollbackAction || !rollback) return;
+            if (!rollbackAction) return;
 
-            rollbackAction(rollback.statePart, dispatch);
+            rollbackAction(r.rollback.payload, dispatch);
         });
     }
 
@@ -41,12 +37,10 @@ export class SyncAppDAL {
         const targetTabId = tabsStorage.removeTabAndGetNext(currentTabId);
         if (!targetTabId) {
             requestsStorage.removeAllRequests();
-            rollbackStorage.removeAllRollbacks();
             return;
         }
 
         requestsStorage.replaceRequests(currentTabId, targetTabId);
-        rollbackStorage.replaceRollbacks(currentTabId, targetTabId);
 
         return {currentTabId, targetTabId};
     }

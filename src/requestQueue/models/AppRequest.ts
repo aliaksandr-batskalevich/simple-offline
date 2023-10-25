@@ -1,5 +1,6 @@
 import {v1} from "uuid";
 import {RequestMethod} from "./RequestMethod";
+import {Rollback} from "./Rollback";
 
 export enum HttpMethod {
     GET = "GET",
@@ -40,14 +41,17 @@ export class AppRequest {
     dateCreate: string;
     requestConfig: RequestConfig;
     requestMethod: RequestMethod;
+    rollback: Rollback;
     isPrimary: boolean;
+    inProgress: boolean;
 
     constructor(
         tabId: string,
         title: string,
         requestConfig: RequestConfig,
         requestMethod: RequestMethod,
-        isPrimary: boolean = false
+        rollback: Rollback,
+        isPrimary: boolean = false,
     ) {
         this.requestId = v1();
         this.tabId = tabId;
@@ -55,7 +59,9 @@ export class AppRequest {
         this.dateCreate = new Date().toLocaleTimeString();
         this.requestConfig = requestConfig;
         this.requestMethod = requestMethod;
+        this.rollback = rollback;
         this.isPrimary = isPrimary;
+        this.inProgress = false;
     }
 
 }

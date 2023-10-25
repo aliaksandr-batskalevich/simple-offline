@@ -65,15 +65,5 @@ export const updateProfileFollowed = (isFollowed: boolean) => {
 };
 
 export const getProfileTC = (id: number) =>
-    (dispatch: ThunkDispatchType, getState: () => RootStateType) => {
-
-            dispatch(setProfileData(null));
-            dispatch(setIsProfileInit(false));
-
-            // CREATE ROLLBACK
-            const state = getState();
-            const rollbackState = getProfileData(state);
-
-            // ADD REQUEST TO QUEUE
-            AsyncAppDAL.getUser(dispatch, rollbackState, id);
-    };
+    (dispatch: ThunkDispatchType, getState: () => RootStateType) =>
+        AsyncAppDAL.getUser(dispatch, getState, id);

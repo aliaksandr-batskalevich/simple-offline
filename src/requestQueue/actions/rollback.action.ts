@@ -2,7 +2,8 @@ import {RequestMethod} from "../models/RequestMethod";
 import {ThunkDispatchType} from "../../utils/hooks/useAppDispatch";
 import {IUser} from "../../models/IUser";
 import {setProfileData} from "../../bll/profile.reducer";
-import {setUsers, updateUser} from "../../bll/users.reducer";
+import {setUsers, updateUserFollowed} from "../../bll/users.reducer";
+import {FollowRollback} from "../models/RollbackData/follow.rollback";
 
 export class RollbackAction {
 
@@ -14,12 +15,12 @@ export class RollbackAction {
         dispatch(setUsers(users));
     }
 
-    static [RequestMethod.FOLLOW](user: IUser, dispatch: ThunkDispatchType) {
-        dispatch(updateUser(user));
+    static [RequestMethod.FOLLOW]({userId, isFollowed}: FollowRollback, dispatch: ThunkDispatchType) {
+        dispatch(updateUserFollowed(userId, isFollowed));
     }
 
-    static [RequestMethod.UNFOLLOW](user: IUser, dispatch: ThunkDispatchType) {
-        dispatch(updateUser(user));
+    static [RequestMethod.UNFOLLOW]({userId, isFollowed}: FollowRollback, dispatch: ThunkDispatchType) {
+        dispatch(updateUserFollowed(userId, isFollowed));
     }
 
 }

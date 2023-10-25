@@ -1,15 +1,9 @@
 export class Rollback {
-    tabId: string;
-    requestId: string;
-    statePart: any;
+    payload: any;
 
     constructor(
-        tabId: string,
-        requestId: string,
         statePart: any,
     ) {
-        this.tabId = tabId;
-        this.requestId = requestId;
-        this.statePart = statePart;
+        this.payload = statePart;
     }
 }
