@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.beabc9d2.css",
-    "main.js": "/static/js/main.b6acc933.js",
-    "static/js/787.a340f673.chunk.js": "/static/js/787.a340f673.chunk.js",
-    "static/media/logo-error.png": "/static/media/logo-error.0f155baec8f0e87b1f8d.png",
-    "static/media/spinnerPreloader.gif": "/static/media/spinnerPreloader.538a46681c0d1777619e.gif",
-    "index.html": "/index.html",
-    "main.beabc9d2.css.map": "/static/css/main.beabc9d2.css.map",
-    "main.b6acc933.js.map": "/static/js/main.b6acc933.js.map",
-    "787.a340f673.chunk.js.map": "/static/js/787.a340f673.chunk.js.map"
+    "main.css": "/simple-offline/build/static/css/main.9b7ea7ba.css",
+    "main.js": "/simple-offline/build/static/js/main.5707960d.js",
+    "static/js/787.a340f673.chunk.js": "/simple-offline/build/static/js/787.a340f673.chunk.js",
+    "static/media/logo-error.png": "/simple-offline/build/static/media/logo-error.0f155baec8f0e87b1f8d.png",
+    "static/media/spinnerPreloader.gif": "/simple-offline/build/static/media/spinnerPreloader.538a46681c0d1777619e.gif",
+    "index.html": "/simple-offline/build/index.html",
+    "main.9b7ea7ba.css.map": "/simple-offline/build/static/css/main.9b7ea7ba.css.map",
+    "main.5707960d.js.map": "/simple-offline/build/static/js/main.5707960d.js.map",
+    "787.a340f673.chunk.js.map": "/simple-offline/build/static/js/787.a340f673.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.beabc9d2.css",
-    "static/js/main.b6acc933.js"
+    "static/css/main.9b7ea7ba.css",
+    "static/js/main.5707960d.js"
   ]
 }
