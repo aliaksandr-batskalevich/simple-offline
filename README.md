@@ -1,40 +1,35 @@
-   В данном приложении показан способ реализации работы приложения CRA в оффлойн-режиме.
+This application shows how to implement a CRA application offline.
 
-   Для этого все запросы поступают во встроенный DAL, который формирует из запросов очередь.
-(все файлы, касающиеся технологии очереди запросов находятся в каталоге requestQueue)
+To do this, all requests are sent to the built-in DAL, which forms a queue of requests.
+(all files related to request queue technology are located in the requestQueue directory)
 
-   Приложение контролирует состояние соединение с сетью при помощи нативных событий window (offline & online), на которые приложение подписывается через кастомный хук useControlConnection.
+The application controls the state of the network connection using native window events (offline & online), to which the application subscribes via a custom useControlConnection hook.
+The technology implements control of tabs where offline requests were executed (when switching to online, requests are sent by the tab that created it - to prevent duplication). When such a tab is closed, its requests are overridden by another tab. If there are no other tabs (of the same domain) when a tab is closed, all offline requests are cleared (it is possible to implement a different scenario).
 
-   В технологии реализован контроль вкладок, в которых выполнялись запросы в оффлайне (при переходе в онлайн запросы отправляет та вкладка, которая его создавала - для предотвращения дублирования). При закрытии такой вкладки ее запросы переопределяются другой вкладке. Если при закрытии вкладки другие (того же домена) отсутствуют - все запросы оффлайн-режима очищаются (возможно реализовать иной сценарий).
-
-
-АЛГОРИТМ ДОБАВЛЕНИЯ НОВОГО ТИПА ЗАПРОСА
-   1. Добавить в enum RequestMethod тип запроса.
-   2. Создать интерфейс для типизации хранимого payload для rollback.
-   3. Добавить в class AsyncAppDAL статический метод, в котором:
-      3.1. Создается title запроса (используется для идентификации запроса, а также отображения его в компоненте QueueRequestsMonitor), используя приватный статический метод _requestTitleCreator (title состоит из 3-х частей: effect (действие), operand (сущность, над которой выполняется действие), id (идентификатор сущности, необязательный аргумент)).
-      3.2. Создается requestConfig через class RequestConfig.
-      3.3. Создается rollback через class Rollback.
-      3.4. Создается request через class AppRequest.
-   4. Добавить в class BllAction метод для изменения стэйта приложения (до направления запроса на сервер).
-   5. Добавить в class RollbackAction метод для выполнения rollback стэйта приложения (для случая получения отрицательного ответа сервера на запрос или отмены запроса пользователем). Для выполнения rollback в некоторых случаях понадобится payload, хранение которого предусмотрено в экземпляре class AppRequest.
-   6. Добавить в class ResponseResolveAction метод для обработки положительного ответа сервера на данный запрос (при необходимости, изменение стэйта приложения).
-   7. Добавить в class ResponseRejectAction метод для обработки отрицательного ответа сервера на данный запрос.
-   8. Добавить пару в объекты optimizationPairs и destroyPairs (зависимость оптимизирования запросов). Если при добавлении запроса в очередь в ней находится запрос, косающийся той-же сущности и тому же экземпляру и рассматриваемый запрос еще не обрабатывается алгоритмом httpEngine (свойство inProgress экземпляра AppRequest имеет значение false), два запроса оптимизируются по кейсам:
-      8.1. Если в очереди имеется запрос CREATE или UPDATE и в очередь добавляется запрос UPDATE - имеющийся запрос в очереди обновляет свои payload для отправки на сервер с учетов последнего запроса (новый запрос в очередь не добавляется), rollback запроса при этом остается прежним.
-      8.2. Если в очереди имеется запрос CREATE и в очередь добавляется запрос DELETE - имеющийся запрос (CREATE) из очереди удаляется (новый запрос в очередь не добавляется).
-      8.3. Во всех остальных случаях в очередь добавляется новый запрос.
+ALGORITHM FOR ADDING A NEW QUERY TYPE
+   1. Add a request type to the enum RequestMethod.
+   2. Create an interface to type the stored payload for rollback.
+   3. Add a static method to class AsyncAppDAL in which:
+      3.1 Create a request title (used to identify the request as well as display it in the QueueRequestsMonitor component) using the private static method _requestTitleCreator (title consists of 3 parts: effect (action), operand (entity on which the action is performed), id (entity identifier, optional argument))).
+      3.2 A requestConfig is created via class RequestConfig.
+      3.3 A rollback is created via the Rollback class.
+      3.4. A request is created via class AppRequest.
+   4. Add a method to class BllAction to change the application's state (before sending the request to the server).
+   5. Add a method to class RollbackAction to perform a rollback of the application's state (in case the server receives a negative response to the request or the user cancels the request). To perform rollback in some cases you will need payload, which is stored in an instance of class AppRequest.
+   6. Add a method to class ResponseResolveAction to handle a positive server response to this request (if necessary, modify the application state).
+   7. Add a method to class ResponseRejectAction to handle a negative server response to this request.
+   8. Add a pair to the optimizationPairs and destroyPairs objects (request optimization dependency). If when adding a request to the queue there is a request related to the same entity and the same instance in the queue, and the request is not yet processed by the httpEngine algorithm (the inProgress property of the AppRequest instance is set to false), then the two requests are optimized by cases:
+      8.1 If there is a CREATE or UPDATE request in the queue and an UPDATE request is added to the queue - the existing request in the queue updates its payloads to be sent to the server taking into account the last request (no new request is added to the queue), the rollback of the request remains the same.
+      8.2 If there is a CREATE request in the queue and a DELETE request is added to the queue - the existing CREATE request is removed from the queue (no new request is added to the queue).
+      8.3 In all other cases, a new request is added to the queue.
 
 
-АЛГОРИТМ ОТПРАВКИ ЗАПРОСА
-   Все запросы на сервер выполняются через redux, используя redux-thunk.
-   Режим отправки запросов из очереди используется только после логинизации пользователя, до этого все запросы отправляется через axios-auth-instance.
-
-   Для добавления запроса в очередь необходимо в соответствующей thunkCreator-функции:
-   1. Вызвать соответствующий статический метод класса AsyncAppDAL и передать в параметры:
+REQUEST SENDING ALGORITHM
+All requests to the server are made through redux, using redux-thunk.
+The mode of sending requests from the queue is used only after user login, before that all requests are sent via axios-auth-instance.
+To add a request to the queue, it is necessary in the corresponding thunkCreator-function:
+   1. Call the corresponding static method of the AsyncAppDAL class and pass in the parameters:
       dispatch;
       getState;
-      данные для формирования payload запроса и изменения стэйта приложения;
-
-
-   Для контроля состояния и редактирования очереди запросов предусмотрен QueueRequestMonitor, функционал которого позволяет просматривать текущую очередь запросов открытой вкладки, а также удалять запросы по одному либо все сразу (с выполнением rollback стэйта).
+      data for forming a payload request and changing the application's state;
+QueueRequestMonitor is provided to monitor the status and edit the request queue. Its functionality allows you to view the current request queue of an open tab, as well as delete requests one by one or all at once (with rollback of the state).
